@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 
 type SidebarNavProps = {
   pathname: string;
+  userEmail?: string | null;
+  isGuest?: boolean;
   onNavigate?: () => void;
 };
 
@@ -58,7 +60,20 @@ const navItems = [
   },
 ];
 
-export function SidebarNav({ pathname, onNavigate }: SidebarNavProps) {
+export function SidebarNav({
+  pathname,
+  userEmail,
+  isGuest = false,
+  onNavigate,
+}: SidebarNavProps) {
+  const visibleItems = navItems.filter((item) => {
+    if (isGuest && item.href === "/insights") {
+      return false;
+    }
+
+    return true;
+  });
+
   return (
     <div className="flex h-full flex-col gap-6 overflow-y-auto p-5">
       <div className="surface-soft p-4">
@@ -74,10 +89,15 @@ export function SidebarNav({ pathname, onNavigate }: SidebarNavProps) {
         <p className="mt-3 text-sm leading-6 text-slate-600">
           予約導線を最短化しつつ、企業運用に必要な管理画面も同じUIトーンで揃えています。
         </p>
+        {userEmail ? (
+          <p className="mt-3 text-xs font-medium tracking-[0.12em] text-slate-400">
+            {userEmail}
+          </p>
+        ) : null}
       </div>
 
       <nav className="space-y-2">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const active =
             item.href === "/"
               ? pathname === item.href

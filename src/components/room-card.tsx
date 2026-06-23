@@ -9,10 +9,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatYen, type Room } from "@/lib/mock-data";
+import { formatYen, type RoomCardData } from "@/lib/meetingroom-view";
 
 type RoomCardProps = {
-  room: Room;
+  room: RoomCardData;
   compact?: boolean;
 };
 

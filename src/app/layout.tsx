@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Manrope } from "next/font/google";
 
 import { AppShell } from "@/components/app-shell";
+import { AuthGuard } from "@/components/auth-guard";
+import { AuthProvider } from "@/components/auth-provider";
 
 import "./globals.css";
 
@@ -31,7 +33,11 @@ export default function RootLayout({
       className={`${manrope.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <AppShell>{children}</AppShell>
+        <AuthProvider>
+          <AuthGuard>
+            <AppShell>{children}</AppShell>
+          </AuthGuard>
+        </AuthProvider>
       </body>
     </html>
   );

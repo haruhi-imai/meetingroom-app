@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Bell, Menu, Search } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Bell, LogOut, Menu, Search } from "lucide-react";
 import { useState } from "react";
 
+import { useAuth } from "@/components/auth-provider";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,19 @@ type AppShellProps = {
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { user, signOut, isGuest } = useAuth();
+
+  if (pathname === "/login") {
+    return <>{children}</>;
+  }
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace("/login");
+    router.refresh();
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -79,6 +92,22 @@ export function AppShell({ children }: AppShellProps) {
               >
                 <Bell className="size-5 text-slate-700" />
               </Button>
+              <div className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left lg:block">
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
+                  Account
+                </p>
+                <p className="max-w-[180px] truncate text-sm font-semibold text-slate-900">
+                  {user?.email ?? "Signed in"}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                className="h-12 rounded-2xl border-slate-200 bg-white px-4 text-slate-900 hover:bg-[#f8fbff]"
+                onClick={handleSignOut}
+              >
+                <LogOut className="size-4" />
+                ログアウト
+              </Button>
               <Link
                 href={pathname === "/schedule" ? "/" : "/schedule"}
                 className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#d9efff] px-5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#c9e6ff]"
@@ -99,7 +128,12 @@ export function AppShell({ children }: AppShellProps) {
               主要画面へすぐ移動できるサイドバーです。
             </SheetDescription>
           </SheetHeader>
-          <SidebarNav pathname={pathname} onNavigate={() => setOpen(false)} />
+          <SidebarNav
+            pathname={pathname}
+            userEmail={user?.email ?? null}
+            isGuest={isGuest}
+            onNavigate={() => setOpen(false)}
+          />
         </SheetContent>
 
         <main className="mx-auto flex w-full max-w-7xl flex-col px-4 pb-10 pt-6 lg:px-6">
