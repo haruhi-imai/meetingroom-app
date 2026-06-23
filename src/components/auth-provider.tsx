@@ -2,15 +2,11 @@
 
 import {
   createContext,
-  startTransition,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
-
-import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 const DEMO_AUTH_KEY = "meetingroom-demo-auth";
 
@@ -71,7 +67,6 @@ type AuthContextValue = {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  configured: boolean;
   isGuest: boolean;
   signOut: () => Promise<void>;
 };
@@ -83,84 +78,23 @@ type AuthProviderProps = {
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const configured = isSupabaseConfigured();
-  const [session, setSession] = useState<Session | null>(() =>
-    configured ? null : readDemoSession(),
-  );
-  const [loading, setLoading] = useState(configured);
-
-  useEffect(() => {
-    if (!configured) {
-      return;
-    }
-
-    let mounted = true;
-    let unsubscribe: (() => void) | null = null;
-
-    const bootstrap = async () => {
-      try {
-        const supabase = getSupabaseBrowserClient();
-        const { data, error } = await supabase.auth.getSession();
-
-        if (!mounted) {
-          return;
-        }
-
-        setSession(error ? null : data.session ?? null);
-
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-          startTransition(() => {
-            setSession(nextSession ?? null);
-            setLoading(false);
-          });
-        });
-
-        unsubscribe = () => subscription.unsubscribe();
-      } catch {
-        if (!mounted) {
-          return;
-        }
-
-        setSession(null);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    void bootstrap();
-
-    return () => {
-      mounted = false;
-      unsubscribe?.();
-    };
-  }, [configured]);
+  const [session, setSession] = useState<Session | null>(() => readDemoSession());
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user: session?.user ?? null,
       session,
-      loading,
-      configured,
+      loading: false,
       isGuest: session?.user.email === "guest@example.com",
       signOut: async () => {
-        if (!configured) {
-          if (typeof window !== "undefined") {
-            window.sessionStorage.removeItem(DEMO_AUTH_KEY);
-            window.location.assign("/login");
-          }
-          setSession(null);
-          return;
+        if (typeof window !== "undefined") {
+          window.sessionStorage.removeItem(DEMO_AUTH_KEY);
+          window.location.assign("/login/");
         }
-
-        const supabase = getSupabaseBrowserClient();
-        await supabase.auth.signOut();
+        setSession(null);
       },
     }),
-    [configured, loading, session],
+    [session],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

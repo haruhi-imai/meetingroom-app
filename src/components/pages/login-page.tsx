@@ -1,17 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
 
-import { isDemoAccount, setDemoAuth, useAuth } from "@/components/auth-provider";
+import { DEMO_ACCOUNTS, isDemoAccount, setDemoAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function LoginPageClient() {
-  const router = useRouter();
-  const { configured } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -22,32 +18,14 @@ export function LoginPageClient() {
     setSubmitting(true);
     setError(null);
 
-    if (!configured) {
-      if (!isDemoAccount(email, password)) {
-        setError("デモログインの情報が一致しません。");
-        setSubmitting(false);
-        return;
-      }
-
-      setDemoAuth(email);
-      window.location.assign("/");
-      return;
-    }
-
-    const supabase = getSupabaseBrowserClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      setError(signInError.message);
+    if (!isDemoAccount(email, password)) {
+      setError("テストアカウントの情報が一致しません。");
       setSubmitting(false);
       return;
     }
 
-    router.replace("/");
-    router.refresh();
+    setDemoAuth(email);
+    window.location.assign("/");
   };
 
   return (
@@ -60,17 +38,18 @@ export function LoginPageClient() {
           Login
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-          Supabase にログイン
+          テストアカウントでログイン
         </h1>
         <p className="mt-3 text-sm leading-7 text-slate-600">
-          メールアドレスとパスワードでログインして、自分の会議室データだけ操作できる状態にします。
+          用意済みのテストアカウントでログインして、会議室予約アプリを確認できます。
         </p>
-        {!configured ? (
-          <div className="mt-6 rounded-2xl bg-[#fff0df] px-4 py-3 text-sm text-slate-700">
-            デモ用アカウントは `test@example.com / test1234`、
-            `demo@example.com / demo1234`、`guest@example.com / guest1234` です。
-          </div>
-        ) : null}
+        <div className="mt-6 rounded-2xl bg-[#fff0df] px-4 py-3 text-sm text-slate-700">
+          {DEMO_ACCOUNTS.map((account) => (
+            <p key={account.email}>
+              {account.email} / {account.password}
+            </p>
+          ))}
+        </div>
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
