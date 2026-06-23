@@ -1,8 +1,7 @@
 "use client";
 
-import { startTransition, useEffect, useState } from "react";
+import { startTransition, useState } from "react";
 
-import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import type {
   EquipmentRow,
   ParticipantRow,
@@ -194,122 +193,28 @@ function createDemoBundle() {
 }
 
 export function useSupabaseMeetingData(): UseSupabaseMeetingDataResult {
-  const configured = isSupabaseConfigured();
   const demoBundle = createDemoBundle();
-  const [rooms, setRooms] = useState<RoomRow[]>(configured ? [] : demoBundle.rooms);
+  const [rooms, setRooms] = useState<RoomRow[]>(demoBundle.rooms);
   const [reservations, setReservations] = useState<ReservationRow[]>(
-    configured ? [] : demoBundle.reservations,
+    demoBundle.reservations,
   );
   const [participants, setParticipants] = useState<ParticipantRow[]>(
-    configured ? [] : demoBundle.participants,
+    demoBundle.participants,
   );
-  const [equipment, setEquipment] = useState<EquipmentRow[]>(
-    configured ? [] : demoBundle.equipment,
-  );
-  const [loading, setLoading] = useState(configured);
+  const [equipment, setEquipment] = useState<EquipmentRow[]>(demoBundle.equipment);
+  const [loading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!configured) {
-      return;
-    }
-
-    const run = async () => {
-      try {
-        const supabase = getSupabaseBrowserClient();
-        const [roomsResult, reservationsResult, participantsResult, equipmentResult] =
-          await Promise.all([
-            supabase.from("rooms").select("*").order("name"),
-            supabase.from("reservations").select("*").order("start_at"),
-            supabase.from("participants").select("*").order("created_at"),
-            supabase.from("equipment").select("*").order("name"),
-          ]);
-
-        const firstError =
-          roomsResult.error ??
-          reservationsResult.error ??
-          participantsResult.error ??
-          equipmentResult.error;
-
-        if (firstError) {
-          const fallback = createDemoBundle();
-          setRooms(fallback.rooms);
-          setReservations(fallback.reservations);
-          setParticipants(fallback.participants);
-          setEquipment(fallback.equipment);
-          setError(null);
-          setLoading(false);
-          return;
-        }
-
-        setRooms((roomsResult.data ?? []) as RoomRow[]);
-        setReservations((reservationsResult.data ?? []) as ReservationRow[]);
-        setParticipants((participantsResult.data ?? []) as ParticipantRow[]);
-        setEquipment((equipmentResult.data ?? []) as EquipmentRow[]);
-        setError(null);
-        setLoading(false);
-      } catch {
-        const fallback = createDemoBundle();
-        setRooms(fallback.rooms);
-        setReservations(fallback.reservations);
-        setParticipants(fallback.participants);
-        setEquipment(fallback.equipment);
-        setError(null);
-        setLoading(false);
-      }
-    };
-
-    void run();
-  }, [configured]);
 
   const refetch = async () => {
-    if (!configured) {
-      return;
-    }
-
     startTransition(() => setRefreshing(true));
-    setError(null);
-
-    try {
-      const supabase = getSupabaseBrowserClient();
-      const [roomsResult, reservationsResult, participantsResult, equipmentResult] =
-        await Promise.all([
-          supabase.from("rooms").select("*").order("name"),
-          supabase.from("reservations").select("*").order("start_at"),
-          supabase.from("participants").select("*").order("created_at"),
-          supabase.from("equipment").select("*").order("name"),
-        ]);
-
-      const firstError =
-        roomsResult.error ??
-        reservationsResult.error ??
-        participantsResult.error ??
-        equipmentResult.error;
-
-      if (firstError) {
-        const fallback = createDemoBundle();
-        setRooms(fallback.rooms);
-        setReservations(fallback.reservations);
-        setParticipants(fallback.participants);
-        setEquipment(fallback.equipment);
-        setRefreshing(false);
-        return;
-      }
-
-      setRooms((roomsResult.data ?? []) as RoomRow[]);
-      setReservations((reservationsResult.data ?? []) as ReservationRow[]);
-      setParticipants((participantsResult.data ?? []) as ParticipantRow[]);
-      setEquipment((equipmentResult.data ?? []) as EquipmentRow[]);
-      setRefreshing(false);
-    } catch {
+    window.setTimeout(() => {
       const fallback = createDemoBundle();
       setRooms(fallback.rooms);
       setReservations(fallback.reservations);
       setParticipants(fallback.participants);
       setEquipment(fallback.equipment);
       setRefreshing(false);
-    }
+    }, 400);
   };
 
   return {
@@ -319,8 +224,8 @@ export function useSupabaseMeetingData(): UseSupabaseMeetingDataResult {
     equipment,
     loading,
     refreshing,
-    error,
-    configured,
+    error: null,
+    configured: false,
     refetch,
   };
 }
