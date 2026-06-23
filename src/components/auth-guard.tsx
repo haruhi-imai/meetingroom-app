@@ -14,40 +14,44 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useAuth();
+  const isLoginPath = pathname === "/login" || pathname === "/login/";
 
   useEffect(() => {
     if (loading) {
       return;
     }
 
-    if (!user && pathname !== "/login") {
-      router.replace("/login");
+    if (!user && !isLoginPath) {
+      router.replace("/login/");
       window.setTimeout(() => {
-        if (window.location.pathname !== "/login") {
+        if (window.location.pathname !== "/login/") {
           window.location.replace("/login/");
         }
       }, 500);
     }
 
-    if (user && pathname === "/login") {
+    if (user && isLoginPath) {
       router.replace("/");
       window.setTimeout(() => {
-        if (window.location.pathname === "/login") {
+        if (
+          window.location.pathname === "/login" ||
+          window.location.pathname === "/login/"
+        ) {
           window.location.replace("/");
         }
       }, 500);
     }
-  }, [loading, pathname, router, user]);
+  }, [isLoginPath, loading, router, user]);
 
   if (loading) {
     return <LoadingOverlay />;
   }
 
-  if (!user && pathname !== "/login") {
+  if (!user && !isLoginPath) {
     return <LoadingOverlay />;
   }
 
-  if (user && pathname === "/login") {
+  if (user && isLoginPath) {
     return <LoadingOverlay />;
   }
 

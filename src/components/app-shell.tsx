@@ -26,8 +26,9 @@ export function AppShell({ children }: AppShellProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { user, signOut, isGuest } = useAuth();
+  const isLoginPath = pathname === "/login" || pathname === "/login/";
 
-  if (pathname === "/login") {
+  if (isLoginPath) {
     return <>{children}</>;
   }
 
