@@ -216,6 +216,62 @@ export function useSupabaseMeetingData(): UseSupabaseMeetingDataResult {
     }
 
     const run = async () => {
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const [roomsResult, reservationsResult, participantsResult, equipmentResult] =
+          await Promise.all([
+            supabase.from("rooms").select("*").order("name"),
+            supabase.from("reservations").select("*").order("start_at"),
+            supabase.from("participants").select("*").order("created_at"),
+            supabase.from("equipment").select("*").order("name"),
+          ]);
+
+        const firstError =
+          roomsResult.error ??
+          reservationsResult.error ??
+          participantsResult.error ??
+          equipmentResult.error;
+
+        if (firstError) {
+          const fallback = createDemoBundle();
+          setRooms(fallback.rooms);
+          setReservations(fallback.reservations);
+          setParticipants(fallback.participants);
+          setEquipment(fallback.equipment);
+          setError(null);
+          setLoading(false);
+          return;
+        }
+
+        setRooms((roomsResult.data ?? []) as RoomRow[]);
+        setReservations((reservationsResult.data ?? []) as ReservationRow[]);
+        setParticipants((participantsResult.data ?? []) as ParticipantRow[]);
+        setEquipment((equipmentResult.data ?? []) as EquipmentRow[]);
+        setError(null);
+        setLoading(false);
+      } catch {
+        const fallback = createDemoBundle();
+        setRooms(fallback.rooms);
+        setReservations(fallback.reservations);
+        setParticipants(fallback.participants);
+        setEquipment(fallback.equipment);
+        setError(null);
+        setLoading(false);
+      }
+    };
+
+    void run();
+  }, [configured]);
+
+  const refetch = async () => {
+    if (!configured) {
+      return;
+    }
+
+    startTransition(() => setRefreshing(true));
+    setError(null);
+
+    try {
       const supabase = getSupabaseBrowserClient();
       const [roomsResult, reservationsResult, participantsResult, equipmentResult] =
         await Promise.all([
@@ -232,8 +288,12 @@ export function useSupabaseMeetingData(): UseSupabaseMeetingDataResult {
         equipmentResult.error;
 
       if (firstError) {
-        setError(firstError.message);
-        setLoading(false);
+        const fallback = createDemoBundle();
+        setRooms(fallback.rooms);
+        setReservations(fallback.reservations);
+        setParticipants(fallback.participants);
+        setEquipment(fallback.equipment);
+        setRefreshing(false);
         return;
       }
 
@@ -241,46 +301,15 @@ export function useSupabaseMeetingData(): UseSupabaseMeetingDataResult {
       setReservations((reservationsResult.data ?? []) as ReservationRow[]);
       setParticipants((participantsResult.data ?? []) as ParticipantRow[]);
       setEquipment((equipmentResult.data ?? []) as EquipmentRow[]);
-      setLoading(false);
-    };
-
-    void run();
-  }, [configured]);
-
-  const refetch = async () => {
-    if (!configured) {
-      return;
-    }
-
-    const supabase = getSupabaseBrowserClient();
-    startTransition(() => setRefreshing(true));
-    setError(null);
-
-    const [roomsResult, reservationsResult, participantsResult, equipmentResult] =
-      await Promise.all([
-        supabase.from("rooms").select("*").order("name"),
-        supabase.from("reservations").select("*").order("start_at"),
-        supabase.from("participants").select("*").order("created_at"),
-        supabase.from("equipment").select("*").order("name"),
-      ]);
-
-    const firstError =
-      roomsResult.error ??
-      reservationsResult.error ??
-      participantsResult.error ??
-      equipmentResult.error;
-
-    if (firstError) {
-      setError(firstError.message);
       setRefreshing(false);
-      return;
+    } catch {
+      const fallback = createDemoBundle();
+      setRooms(fallback.rooms);
+      setReservations(fallback.reservations);
+      setParticipants(fallback.participants);
+      setEquipment(fallback.equipment);
+      setRefreshing(false);
     }
-
-    setRooms((roomsResult.data ?? []) as RoomRow[]);
-    setReservations((reservationsResult.data ?? []) as ReservationRow[]);
-    setParticipants((participantsResult.data ?? []) as ParticipantRow[]);
-    setEquipment((equipmentResult.data ?? []) as EquipmentRow[]);
-    setRefreshing(false);
   };
 
   return {
