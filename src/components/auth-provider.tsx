@@ -98,14 +98,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     let mounted = true;
 
     const bootstrap = async () => {
-      const { data } = await supabase.auth.getSession();
+      try {
+        const { data, error } = await supabase.auth.getSession();
 
-      if (!mounted) {
-        return;
+        if (!mounted) {
+          return;
+        }
+
+        setSession(error ? null : data.session ?? null);
+      } catch {
+        if (!mounted) {
+          return;
+        }
+
+        setSession(null);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-
-      setSession(data.session ?? null);
-      setLoading(false);
     };
 
     void bootstrap();

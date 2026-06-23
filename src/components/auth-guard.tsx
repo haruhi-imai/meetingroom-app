@@ -22,10 +22,20 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     if (!user && pathname !== "/login") {
       router.replace("/login");
+      window.setTimeout(() => {
+        if (window.location.pathname !== "/login") {
+          window.location.replace("/login/");
+        }
+      }, 500);
     }
 
     if (user && pathname === "/login") {
       router.replace("/");
+      window.setTimeout(() => {
+        if (window.location.pathname === "/login") {
+          window.location.replace("/");
+        }
+      }, 500);
     }
   }, [loading, pathname, router, user]);
 
