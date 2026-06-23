@@ -29,30 +29,32 @@ export function isDemoAccount(email: string, password: string) {
 function createDemoSession(email: string): Session {
   const now = new Date().toISOString();
 
+  const user = {
+    id: "demo-user",
+    aud: "authenticated",
+    role: "authenticated",
+    email,
+    email_confirmed_at: now,
+    phone: "",
+    confirmation_sent_at: undefined,
+    confirmed_at: now,
+    last_sign_in_at: now,
+    app_metadata: {},
+    user_metadata: {},
+    identities: [],
+    created_at: now,
+    updated_at: now,
+    is_anonymous: false,
+  } as unknown as User;
+
   return {
     access_token: "demo-access-token",
     token_type: "bearer",
     expires_in: 3600,
-    expires_at: null,
+    expires_at: undefined,
     refresh_token: "demo-refresh-token",
-    user: {
-      id: "demo-user",
-      aud: "authenticated",
-      role: "authenticated",
-      email,
-      email_confirmed_at: now,
-      phone: "",
-      confirmation_sent_at: null,
-      confirmed_at: now,
-      last_sign_in_at: now,
-      app_metadata: {},
-      user_metadata: {},
-      identities: [],
-      created_at: now,
-      updated_at: now,
-      is_anonymous: false,
-    } as User,
-  } as Session;
+    user,
+  } as unknown as Session;
 }
 
 function readDemoSession() {
