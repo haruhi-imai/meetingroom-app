@@ -94,11 +94,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
-    const supabase = getSupabaseBrowserClient();
     let mounted = true;
+    let unsubscribe: (() => void) | null = null;
 
     const bootstrap = async () => {
       try {
+        const supabase = getSupabaseBrowserClient();
         const { data, error } = await supabase.auth.getSession();
 
         if (!mounted) {
@@ -106,6 +107,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         setSession(error ? null : data.session ?? null);
+
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+          startTransition(() => {
+            setSession(nextSession ?? null);
+            setLoading(false);
+          });
+        });
+
+        unsubscribe = () => subscription.unsubscribe();
       } catch {
         if (!mounted) {
           return;
@@ -121,18 +133,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     void bootstrap();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      startTransition(() => {
-        setSession(nextSession ?? null);
-        setLoading(false);
-      });
-    });
-
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      unsubscribe?.();
     };
   }, [configured]);
 
