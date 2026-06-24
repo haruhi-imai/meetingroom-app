@@ -64,7 +64,7 @@ export function PricingPageClient() {
     return (
       <EmptyState
         title="料金データがありません"
-        description="rooms テーブルに hourly_rate を入れると料金ガイドに反映されます。"
+        description="会議室の料金を登録すると、この料金ガイドに反映されます。"
       />
     );
   }
@@ -74,7 +74,7 @@ export function PricingPageClient() {
       <PageIntro
         eyebrow="Pricing"
         title="時間単位の金額がすぐ分かる料金ガイド"
-        description="Supabase の room 単価を元に時間料金を比較できる形へ変換しています。"
+        description="時間ごとの料金をまとめて見比べられます。"
         actions={
           <>
             <Link
@@ -128,7 +128,7 @@ export function PricingPageClient() {
         <CardHeader>
           <CardTitle className="text-xl">時間単位の料金比較</CardTitle>
           <CardDescription>
-            rooms の時間単価から 1h / 2h / 4h を自動算出しています。
+            1時間、2時間、4時間の目安料金をまとめています。
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -21,7 +21,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { useSupabaseMeetingData } from "@/hooks/use-supabase-meeting-data";
 import { createBundle, deriveRoomCards } from "@/lib/meetingroom-view";
@@ -92,12 +91,33 @@ export function RoomsPageClient() {
     return a.hourlyRate - b.hourlyRate;
   });
 
+  const capacityLabel =
+    {
+      all: "すべての人数",
+      small: "少人数向け",
+      medium: "中人数向け",
+      large: "大人数向け",
+    }[capacityFilter] ?? "人数";
+  const equipmentLabel =
+    {
+      all: "すべての設備",
+      monitor: "モニター",
+      camera: "カメラ",
+      board: "ボード",
+    }[equipmentFilter] ?? "設備";
+  const sortOrderLabel =
+    {
+      price: "料金が安い順",
+      availability: "空き状況順",
+      capacity: "人数が多い順",
+    }[sortOrder] ?? "並び順";
+
   return (
     <div className="space-y-6">
       <PageIntro
         eyebrow="Rooms"
         title="設備・人数・料金で選べる会議室カタログ"
-        description="rooms と equipment を組み合わせた一覧です。検索と絞り込みはクライアントイベントで処理しています。"
+        description="設備、人数、料金を見比べながら条件に合う会議室を探せます。"
         actions={
           <Button
             variant="outline"
@@ -118,7 +138,7 @@ export function RoomsPageClient() {
             <div>
               <CardTitle className="text-xl">絞り込み</CardTitle>
               <CardDescription>
-                入力イベントと Select の値変更で一覧をその場で更新します。
+                条件を変えると一覧がその場で更新されます。
               </CardDescription>
             </div>
           </div>
@@ -135,13 +155,13 @@ export function RoomsPageClient() {
             onValueChange={(value) => setCapacityFilter(value ?? "all")}
           >
             <SelectTrigger className="h-12 w-full rounded-2xl bg-white">
-              <SelectValue placeholder="人数" />
+              <span className="flex flex-1 text-left">{capacityLabel}</span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">すべての人数</SelectItem>
-              <SelectItem value="small">4名以下</SelectItem>
-              <SelectItem value="medium">5〜10名</SelectItem>
-              <SelectItem value="large">11名以上</SelectItem>
+              <SelectItem value="small">少人数向け</SelectItem>
+              <SelectItem value="medium">中人数向け</SelectItem>
+              <SelectItem value="large">大人数向け</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -149,13 +169,13 @@ export function RoomsPageClient() {
             onValueChange={(value) => setEquipmentFilter(value ?? "all")}
           >
             <SelectTrigger className="h-12 w-full rounded-2xl bg-white">
-              <SelectValue placeholder="設備" />
+              <span className="flex flex-1 text-left">{equipmentLabel}</span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">すべての設備</SelectItem>
-              <SelectItem value="monitor">monitor</SelectItem>
-              <SelectItem value="camera">camera</SelectItem>
-              <SelectItem value="board">board</SelectItem>
+              <SelectItem value="monitor">モニター</SelectItem>
+              <SelectItem value="camera">カメラ</SelectItem>
+              <SelectItem value="board">ボード</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -163,11 +183,11 @@ export function RoomsPageClient() {
             onValueChange={(value) => setSortOrder(value ?? "price")}
           >
             <SelectTrigger className="h-12 w-full rounded-2xl bg-white">
-              <SelectValue placeholder="並び順" />
+              <span className="flex flex-1 text-left">{sortOrderLabel}</span>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="price">時間料金が安い順</SelectItem>
-              <SelectItem value="availability">状態順</SelectItem>
+              <SelectItem value="price">料金が安い順</SelectItem>
+              <SelectItem value="availability">空き状況順</SelectItem>
               <SelectItem value="capacity">人数が多い順</SelectItem>
             </SelectContent>
           </Select>
@@ -180,7 +200,7 @@ export function RoomsPageClient() {
       {filteredRooms.length === 0 ? (
         <EmptyState
           title="条件に合う会議室がありません"
-          description="検索条件または Supabase のデータ内容を見直してください。"
+          description="検索条件を変えて、別の会議室を探してください。"
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

@@ -279,7 +279,7 @@ export function deriveRoomCards({
       note:
         room.notes ??
         room.location_note ??
-        "会議室の詳細情報は Supabase の room データから取得しています。",
+        "会議室の詳細情報は管理データから反映されます。",
       features: features.length > 0 ? features : ["設備登録待ち"],
     };
   });
@@ -321,7 +321,7 @@ export function deriveDashboardStats(
     {
       label: "平均予約時間",
       value: averageMinutes > 0 ? `${averageMinutes}分` : "0分",
-      note: "Supabase の reservation 実データから平均時間を算出しています。",
+      note: "予約時間の平均を表示しています。",
       tone: "bg-[#d9efff]",
     },
     {
@@ -339,7 +339,7 @@ export function deriveDashboardStats(
     {
       label: "承認待ち",
       value: `${pendingCount}件`,
-      note: "pending ステータスの予約件数を表示しています。",
+      note: "確認待ちの予約件数を表示しています。",
       tone: "bg-[#f5e8ff]",
     },
   ];
@@ -485,13 +485,13 @@ export function deriveRequestStats(bundle: SupabaseMeetingBundle): StatCardData[
     {
       label: "承認待ち件数",
       value: `${pending.length}件`,
-      note: "pending ステータスの予約を申請扱いとして表示しています。",
+      note: "確認待ちの申請件数です。",
       tone: "bg-[#fff0df]",
     },
     {
       label: "本日完了",
       value: `${completed.length}件`,
-      note: "completed ステータスの予約件数です。",
+      note: "本日完了した件数です。",
       tone: "bg-[#dff4e5]",
     },
     {
@@ -581,7 +581,7 @@ export function deriveInsightStats(
     {
       label: "No-show",
       value: `${completed.length === 0 ? 0 : Math.max(0, completed.length - 1)}件`,
-      note: "ダミー算出値です。実運用では別ステータス化が必要です。",
+      note: "当日利用に至らなかった予約の目安件数です。",
       tone: "bg-[#ffe8d9]",
     },
     {
@@ -593,7 +593,7 @@ export function deriveInsightStats(
     {
       label: "代替提案率",
       value: `${bundle.rooms.length > 0 ? Math.round((pending.length / bundle.rooms.length) * 100) : 0}%`,
-      note: "pending 件数をベースにした仮指標です。",
+      note: "調整が必要な予約件数をもとにした目安です。",
       tone: "bg-[#f5e8ff]",
     },
   ];

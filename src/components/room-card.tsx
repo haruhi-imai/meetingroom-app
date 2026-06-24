@@ -23,9 +23,12 @@ const statusTone = {
 };
 
 export function RoomCard({ room, compact = true }: RoomCardProps) {
+  const visibleFeatures = room.features.slice(0, compact ? 2 : room.features.length);
+  const hiddenFeatureCount = room.features.length - visibleFeatures.length;
+
   return (
     <Card className="surface-soft h-full border-slate-200/80">
-      <CardHeader className="gap-3">
+      <CardHeader className="gap-2.5 md:gap-3">
         <div className="flex items-start justify-between gap-3">
           <div>
             <CardTitle className="text-lg">{room.name}</CardTitle>
@@ -34,66 +37,76 @@ export function RoomCard({ room, compact = true }: RoomCardProps) {
           <Badge className={statusTone[room.status]}>{room.status}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="flex h-full flex-col gap-4">
+      <CardContent className="flex h-full flex-col gap-3 md:gap-4">
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl bg-[#f6f9fc] p-4">
+          <div className="rounded-2xl bg-[#f6f9fc] p-3 md:p-4">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-              Hourly
+              時間料金
             </p>
-            <p className="mt-2 text-xl font-semibold text-slate-900">
+            <p className="mt-1.5 text-lg font-semibold text-slate-900 md:mt-2 md:text-xl">
               {formatYen(room.hourlyRate)}
             </p>
           </div>
-          <div className="rounded-2xl bg-[#f6f9fc] p-4">
+          <div className="rounded-2xl bg-[#f6f9fc] p-3 md:p-4">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-              Next Slot
+              次に予約できる時間
             </p>
-            <p className="mt-2 text-sm font-semibold text-slate-900">
+            <p className="mt-1.5 text-sm font-semibold text-slate-900 md:mt-2">
               {room.nextSlot}
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2 text-sm text-slate-600">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2">
-            <Users className="size-4 text-slate-500" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1.5 md:gap-2 md:px-3 md:py-2">
+            <Users className="size-3.5 text-slate-500 md:size-4" />
             {room.capacity}名
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2">
-            <Clock3 className="size-4 text-slate-500" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1.5 md:gap-2 md:px-3 md:py-2">
+            <Clock3 className="size-3.5 text-slate-500 md:size-4" />
             {room.duration}
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2">
-            <MonitorPlay className="size-4 text-slate-500" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1.5 md:gap-2 md:px-3 md:py-2">
+            <MonitorPlay className="size-3.5 text-slate-500 md:size-4" />
             {room.features[0]}
           </span>
         </div>
 
-        <p className="text-sm leading-6 text-slate-600">{room.note}</p>
+        <p className="line-clamp-2 text-sm leading-5 text-slate-600 md:leading-6">
+          {room.note}
+        </p>
 
         <div className="flex flex-wrap gap-2">
-          {room.features.map((feature) => (
+          {visibleFeatures.map((feature) => (
             <Badge
               key={feature}
               variant="secondary"
-              className="rounded-full bg-[#eef5ff] px-3 py-1 text-slate-700"
+              className="rounded-full bg-[#eef5ff] px-2.5 py-1 text-xs text-slate-700 md:px-3 md:text-sm"
             >
               {feature}
             </Badge>
           ))}
+          {hiddenFeatureCount > 0 ? (
+            <Badge
+              variant="secondary"
+              className="rounded-full bg-[#f4f7fb] px-2.5 py-1 text-xs text-slate-600 md:px-3 md:text-sm"
+            >
+              +{hiddenFeatureCount}
+            </Badge>
+          ) : null}
         </div>
 
-        <div className="mt-auto flex flex-wrap gap-3 pt-2">
+        <div className="mt-auto flex flex-wrap gap-2 pt-1 md:gap-3 md:pt-2">
           <Link
             href="/schedule"
-            className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#d9efff] px-5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#c9e6ff]"
+            className="inline-flex h-10 items-center justify-center rounded-2xl bg-[#d9efff] px-4 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#c9e6ff] md:h-12 md:px-5"
           >
             {compact ? "このまま予約" : "空き状況を確認"}
           </Link>
           {!compact ? (
             <Link
               href="/pricing"
-              className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#ffe8d9] px-5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#ffdcca]"
+              className="inline-flex h-10 items-center justify-center rounded-2xl bg-[#ffe8d9] px-4 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#ffdcca] md:h-12 md:px-5"
             >
               料金を見る
             </Link>

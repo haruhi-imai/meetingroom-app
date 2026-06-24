@@ -7,11 +7,13 @@ import {
   DoorOpen,
   LayoutDashboard,
   ListTodo,
+  LogOut,
   MapPinned,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarGroup } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type SidebarNavProps = {
@@ -19,6 +21,7 @@ type SidebarNavProps = {
   userEmail?: string | null;
   isGuest?: boolean;
   onNavigate?: () => void;
+  onSignOut?: () => void;
 };
 
 const navItems = [
@@ -65,6 +68,7 @@ export function SidebarNav({
   userEmail,
   isGuest = false,
   onNavigate,
+  onSignOut,
 }: SidebarNavProps) {
   const visibleItems = navItems.filter((item) => {
     if (isGuest && item.href === "/insights") {
@@ -76,26 +80,6 @@ export function SidebarNav({
 
   return (
     <div className="flex h-full flex-col gap-6 overflow-y-auto p-5">
-      <div className="surface-soft p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm text-slate-500">導入先</p>
-            <p className="mt-1 text-lg font-semibold text-slate-900">
-              North Star Holdings
-            </p>
-          </div>
-          <Badge className="bg-[#dff4e5] text-slate-800">運用中</Badge>
-        </div>
-        <p className="mt-3 text-sm leading-6 text-slate-600">
-          予約導線を最短化しつつ、企業運用に必要な管理画面も同じUIトーンで揃えています。
-        </p>
-        {userEmail ? (
-          <p className="mt-3 text-xs font-medium tracking-[0.12em] text-slate-400">
-            {userEmail}
-          </p>
-        ) : null}
-      </div>
-
       <nav className="space-y-2">
         {visibleItems.map((item) => {
           const active =
@@ -134,6 +118,36 @@ export function SidebarNav({
           );
         })}
       </nav>
+
+      <div className="surface-soft p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm text-slate-500">導入先</p>
+            <p className="mt-1 text-lg font-semibold text-slate-900">
+              North Star Holdings
+            </p>
+          </div>
+          <Badge className="bg-[#dff4e5] text-slate-800">運用中</Badge>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          予約導線を最短化しつつ、企業運用に必要な管理画面も同じUIトーンで揃えています。
+        </p>
+        {userEmail ? (
+          <p className="mt-3 text-xs font-medium tracking-[0.12em] text-slate-400">
+            {userEmail}
+          </p>
+        ) : null}
+        {onSignOut ? (
+          <Button
+            variant="outline"
+            className="mt-4 h-11 w-full rounded-2xl border-slate-200 bg-white text-slate-900 hover:bg-[#f8fbff] sm:hidden"
+            onClick={onSignOut}
+          >
+            <LogOut className="size-4" />
+            ログアウト
+          </Button>
+        ) : null}
+      </div>
 
       <div className="surface-soft p-4">
         <p className="text-sm font-semibold text-slate-900">利用チーム</p>

@@ -33,7 +33,7 @@ export function InsightsPageClient() {
     return (
       <EmptyState
         title="この画面は利用できません"
-        description="guest アカウントでは利用インサイトを閲覧できません。test アカウントでログインしてください。"
+        description="ゲスト利用ではインサイトを閲覧できません。管理用アカウントでログインしてください。"
       />
     );
   }
@@ -70,7 +70,7 @@ export function InsightsPageClient() {
       <PageIntro
         eyebrow="Insights"
         title="会議室の使われ方を把握する利用インサイト"
-        description="Supabase の reservation 実データを集計して、稼働率や偏りの見え方を既存UIへ載せています。"
+        description="稼働率や利用の偏りを見ながら、改善ポイントを把握できます。"
         actions={
           <Button
             variant="outline"
@@ -90,12 +90,12 @@ export function InsightsPageClient() {
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="surface-card border-slate-100">
-          <CardHeader>
-            <CardTitle className="text-xl">会議室ごとの稼働率</CardTitle>
-            <CardDescription>
-              reservations の累計時間を部屋別に集計しています。
-            </CardDescription>
-          </CardHeader>
+        <CardHeader>
+          <CardTitle className="text-xl">会議室ごとの稼働率</CardTitle>
+          <CardDescription>
+              会議室ごとの使われ方を比較できます。
+          </CardDescription>
+        </CardHeader>
           <CardContent className="space-y-5">
             {utilizationByRoom.map((item) => (
               <Progress key={item.room} value={item.value} className="gap-2">
@@ -119,7 +119,7 @@ export function InsightsPageClient() {
           <CardHeader>
             <CardTitle className="text-xl">運用メモ</CardTitle>
             <CardDescription>
-              実データ連携後に見える改善観点を置いています。
+              改善のヒントを短くまとめています。
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -127,10 +127,10 @@ export function InsightsPageClient() {
               よく使われる会議室と余力のある会議室を分けて見られるようにしています。
             </div>
             <div className="surface-soft p-4 text-sm leading-6 text-slate-600">
-              予約時間の偏りは reservations の開始時刻と長さから再計算しています。
+              予約が集中しやすい時間帯を把握しやすくしています。
             </div>
             <div className="surface-soft p-4 text-sm leading-6 text-slate-600">
-              参加者や備品テーブルも将来的な分析項目へ拡張できます。
+              将来的には参加人数や設備利用もあわせて確認できます。
             </div>
           </CardContent>
         </Card>

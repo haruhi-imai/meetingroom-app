@@ -134,7 +134,7 @@ export function RequestsPageClient() {
       <PageIntro
         eyebrow="Requests"
         title="承認・調整・付帯依頼をまとめる運用画面"
-        description="reservations を申請一覧として変換し、状態確認と再読込のイベントハンドラをクライアント側で持たせています。"
+        description="承認待ちや調整中の予約をまとめて確認できます。"
         actions={
           <div className="flex flex-wrap gap-2">
             {stateOptions.map((option) => {
@@ -178,7 +178,7 @@ export function RequestsPageClient() {
             <div>
               <CardTitle className="text-xl">申請一覧</CardTitle>
               <CardDescription>
-                予約に紐づく承認フローを reservations の状態から表示しています。
+                状態ごとに申請の進み具合を確認できます。
               </CardDescription>
             </div>
             {viewState === "refreshing" ? (
@@ -274,7 +274,7 @@ export function RequestsPageClient() {
             <CardTitle className="text-lg">承認ルール</CardTitle>
           </CardHeader>
           <CardContent className="text-sm leading-6 text-slate-600">
-            pending / confirmed / completed を申請画面向けラベルに変換しています。
+            申請の状態が分かるように、一覧上で見やすく整理しています。
           </CardContent>
         </Card>
         <Card className="surface-card border-slate-100">
@@ -285,7 +285,7 @@ export function RequestsPageClient() {
             <CardTitle className="text-lg">付帯依頼</CardTitle>
           </CardHeader>
           <CardContent className="text-sm leading-6 text-slate-600">
-            将来的には participants や equipment の状態も合わせて申請詳細へ入れられます。
+            将来的には参加人数や設備依頼もあわせて確認できます。
           </CardContent>
         </Card>
         <Card className="surface-card border-slate-100">
@@ -296,8 +296,8 @@ export function RequestsPageClient() {
             <CardTitle className="text-lg">監査しやすさ</CardTitle>
           </CardHeader>
           <CardContent className="text-sm leading-6 text-slate-600">
-            RLS と created_by を前提に、ログインユーザー自身の予約だけ扱う構成です。
-            {isGuest ? " guest アカウントでは所有者情報を非表示にしています。" : null}
+            利用者ごとに必要な情報だけを見せる運用を想定しています。
+            {isGuest ? " ゲスト利用では所有者情報を非表示にしています。" : null}
           </CardContent>
         </Card>
       </div>
@@ -311,7 +311,7 @@ export function RequestsPageClient() {
             <div>
               <CardTitle className="text-lg">状態判定</CardTitle>
               <CardDescription>
-                Supabase 接続の結果に、デモ用 query param の状態を重ねています。
+                読み込み中や更新中などの状態を切り替えて確認できます。
               </CardDescription>
             </div>
           </div>
