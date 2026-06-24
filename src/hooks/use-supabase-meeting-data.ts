@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { startTransition, useMemo, useState, useSyncExternalStore } from "react";
 
 import type {
   EquipmentRow,
@@ -19,6 +19,14 @@ type UseSupabaseMeetingDataResult = {
   error: string | null;
   configured: boolean;
   refetch: () => void;
+};
+
+const subscribe = () => () => {};
+const emptyBundle = {
+  rooms: [] as RoomRow[],
+  reservations: [] as ReservationRow[],
+  participants: [] as ParticipantRow[],
+  equipment: [] as EquipmentRow[],
 };
 
 function isoInHours(hoursFromNow: number) {
@@ -193,36 +201,31 @@ function createDemoBundle() {
 }
 
 export function useSupabaseMeetingData(): UseSupabaseMeetingDataResult {
-  const demoBundle = createDemoBundle();
-  const [rooms, setRooms] = useState<RoomRow[]>(demoBundle.rooms);
-  const [reservations, setReservations] = useState<ReservationRow[]>(
-    demoBundle.reservations,
-  );
-  const [participants, setParticipants] = useState<ParticipantRow[]>(
-    demoBundle.participants,
-  );
-  const [equipment, setEquipment] = useState<EquipmentRow[]>(demoBundle.equipment);
-  const [loading] = useState(false);
+  const isHydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const [version, setVersion] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+
+  const bundle = useMemo(() => {
+    void version;
+    return isHydrated ? createDemoBundle() : emptyBundle;
+  }, [isHydrated, version]);
 
   const refetch = async () => {
     startTransition(() => setRefreshing(true));
     window.setTimeout(() => {
-      const fallback = createDemoBundle();
-      setRooms(fallback.rooms);
-      setReservations(fallback.reservations);
-      setParticipants(fallback.participants);
-      setEquipment(fallback.equipment);
-      setRefreshing(false);
+      startTransition(() => {
+        setVersion((current) => current + 1);
+        setRefreshing(false);
+      });
     }, 400);
   };
 
   return {
-    rooms,
-    reservations,
-    participants,
-    equipment,
-    loading,
+    rooms: bundle.rooms,
+    reservations: bundle.reservations,
+    participants: bundle.participants,
+    equipment: bundle.equipment,
+    loading: !isHydrated,
     refreshing,
     error: null,
     configured: false,

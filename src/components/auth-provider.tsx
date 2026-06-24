@@ -5,10 +5,12 @@ import {
   useContext,
   useMemo,
   useState,
+  useSyncExternalStore,
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 
 const DEMO_AUTH_KEY = "meetingroom-demo-auth";
+const subscribe = () => () => {};
 
 export const DEMO_ACCOUNTS = [
   { email: "test@example.com", password: "test1234" },
@@ -78,23 +80,28 @@ type AuthProviderProps = {
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [session, setSession] = useState<Session | null>(() => readDemoSession());
+  const isHydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const [sessionVersion, setSessionVersion] = useState(0);
+  const session = useMemo(() => {
+    void sessionVersion;
+    return isHydrated ? readDemoSession() : null;
+  }, [isHydrated, sessionVersion]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user: session?.user ?? null,
       session,
-      loading: false,
+      loading: !isHydrated,
       isGuest: session?.user.email === "guest@example.com",
       signOut: async () => {
         if (typeof window !== "undefined") {
           window.sessionStorage.removeItem(DEMO_AUTH_KEY);
           window.location.assign("/login/");
         }
-        setSession(null);
+        setSessionVersion((current) => current + 1);
       },
     }),
-    [session],
+    [isHydrated, session],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

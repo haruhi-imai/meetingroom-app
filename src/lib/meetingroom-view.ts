@@ -557,7 +557,6 @@ export function deriveInsightStats(
   roomCards: RoomCardData[],
 ): StatCardData[] {
   const completed = bundle.reservations.filter((item) => item.status === "completed");
-  const pending = bundle.reservations.filter((item) => item.status === "pending");
   const utilization =
     roomCards.length > 0
       ? Math.round(
@@ -589,12 +588,6 @@ export function deriveInsightStats(
       value: mostUsedHour,
       note: "最初の予約開始時間を元にした簡易表示です。",
       tone: "bg-[#dff4e5]",
-    },
-    {
-      label: "代替提案率",
-      value: `${bundle.rooms.length > 0 ? Math.round((pending.length / bundle.rooms.length) * 100) : 0}%`,
-      note: "調整が必要な予約件数をもとにした目安です。",
-      tone: "bg-[#f5e8ff]",
     },
   ];
 }
