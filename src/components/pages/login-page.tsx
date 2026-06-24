@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn } from "lucide-react";
 
 import { DEMO_ACCOUNTS, isDemoAccount, setDemoAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 export function LoginPageClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,16 +75,31 @@ export function LoginPageClient() {
             >
               パスワード
             </label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              className="h-12 rounded-2xl bg-white"
-              placeholder="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                className="h-12 rounded-2xl bg-white pr-12"
+                placeholder="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示"}
+                aria-pressed={showPassword}
+                className="absolute top-1/2 right-3 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 transition hover:bg-[#f4f7fb] hover:text-slate-700"
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                {showPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </div>
           </div>
           {error ? (
             <div className="rounded-2xl bg-[#fff0df] px-4 py-3 text-sm text-slate-700">
