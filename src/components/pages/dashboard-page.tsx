@@ -38,7 +38,7 @@ import {
 } from "@/lib/meetingroom-view";
 
 const actionLinkClass =
-  "inline-flex h-10 items-center justify-center rounded-2xl px-4 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 md:h-12 md:px-5";
+  "inline-flex h-10 items-center justify-center rounded-none px-4 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 md:h-12 md:px-5";
 
 export function DashboardPage() {
   const { isGuest } = useAuth();
@@ -68,7 +68,7 @@ export function DashboardPage() {
         description="もう一度試してください"
         action={
           <Button
-            className="h-12 rounded-2xl bg-[#d9efff] px-5 text-slate-900 hover:bg-[#c9e6ff]"
+            className="h-12 rounded-none bg-[#d9efff] px-5 text-slate-900 hover:bg-[#c9e6ff]"
             onClick={refetch}
           >
             リロード
@@ -85,7 +85,7 @@ export function DashboardPage() {
         description="会議室や予約の情報を登録すると、このダッシュボードに反映されます。"
         action={
           <Button
-            className="h-12 rounded-2xl bg-[#d9efff] px-5 text-slate-900 hover:bg-[#c9e6ff]"
+            className="h-12 rounded-none bg-[#d9efff] px-5 text-slate-900 hover:bg-[#c9e6ff]"
             onClick={refetch}
           >
             再読み込み
@@ -117,7 +117,7 @@ export function DashboardPage() {
             </Link>
             <Button
               variant="outline"
-              className="h-10 rounded-2xl border-slate-200 bg-white px-4 md:h-12 md:px-5"
+              className="h-10 rounded-none border-slate-200 bg-white px-4 md:h-12 md:px-5"
               onClick={refetch}
             >
               <RefreshCw className="size-4" />
@@ -134,7 +134,7 @@ export function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:gap-6 xl:grid-cols-[1.45fr_0.95fr]">
-        <Card className="surface-card border-slate-100">
+        <Card className="surface-panel">
           <CardHeader className="gap-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -145,7 +145,7 @@ export function DashboardPage() {
               </div>
               <Badge
                 variant="secondary"
-                className="h-8 rounded-full bg-[#eef5ff] px-3 text-slate-700"
+                className="h-8 rounded-none bg-[#eef5ff] px-3 text-slate-700"
               >
                 会議室 {roomCards.length}室
               </Badge>
@@ -153,26 +153,26 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-4 md:space-y-5">
             <Tabs defaultValue="today" className="gap-4 md:gap-5">
-              <TabsList className="h-auto rounded-2xl bg-[#f4f7fb] p-1.5">
+              <TabsList className="h-auto rounded-none bg-[#f4f7fb] p-1.5">
                 <TabsTrigger
                   value="today"
-                  className="rounded-xl px-4 py-2.5 data-active:bg-white"
+                  className="rounded-none px-4 py-2.5 data-active:bg-white"
                 >
                   本日の空室
                 </TabsTrigger>
                 <TabsTrigger
                   value="week"
-                  className="rounded-xl px-4 py-2.5 data-active:bg-white"
+                  className="rounded-none px-4 py-2.5 data-active:bg-white"
                 >
                   今週の注目
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="today" className="space-y-3 md:space-y-4">
-                <div className="grid gap-3 md:gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-3 md:gap-4 md:grid-cols-2 2xl:grid-cols-3">
                   {roomCards.slice(0, 3).map((room, index) => (
                     <div
                       key={room.id}
-                      className={index === 2 ? "hidden xl:block" : undefined}
+                      className={index === 2 ? "hidden 2xl:block" : undefined}
                     >
                       <RoomCard room={room} />
                     </div>
@@ -184,12 +184,12 @@ export function DashboardPage() {
                   {weeklyFocus.map((item) => (
                     <div
                       key={item.title}
-                      className="surface-soft p-5 transition hover:-translate-y-0.5"
+                      className="surface-panel p-5 transition hover:-translate-y-0.5"
                     >
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <Badge
                           variant="secondary"
-                          className="bg-[#fff5ec] text-slate-700"
+                          className="rounded-none bg-[#fff5ec] text-slate-700"
                         >
                           {item.badge}
                         </Badge>
@@ -210,7 +210,7 @@ export function DashboardPage() {
         </Card>
 
         <div className="space-y-4 md:space-y-6">
-          <Card className="surface-card border-slate-100">
+          <Card className="surface-panel">
             <CardHeader>
               <CardTitle className="text-xl">直近の予約</CardTitle>
               <CardDescription>
@@ -248,7 +248,7 @@ export function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="surface-card border-slate-100">
+          <Card className="surface-panel">
             <CardHeader>
               <CardTitle className="text-xl">運用メモ</CardTitle>
               <CardDescription>
@@ -257,7 +257,7 @@ export function DashboardPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4">
               <div className="surface-soft flex items-start gap-3 p-4">
-                <div className="rounded-2xl bg-[#f5e8ff] p-3 text-slate-800">
+                <div className="rounded-none bg-[#f5e8ff] p-3 text-slate-800">
                   <Sparkles className="size-5" />
                 </div>
                 <div>
@@ -278,7 +278,7 @@ export function DashboardPage() {
                   <div className="mt-3 grid gap-3">
                     <Link
                       href="/requests"
-                      className="flex items-center justify-between rounded-2xl bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
+                      className="flex items-center justify-between rounded-none bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
                     >
                       <span className="flex items-center gap-3 font-semibold text-slate-900">
                         <DoorOpen className="size-5 text-slate-500" />
@@ -288,7 +288,7 @@ export function DashboardPage() {
                     </Link>
                     <Link
                       href="/insights"
-                      className="flex items-center justify-between rounded-2xl bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
+                      className="flex items-center justify-between rounded-none bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
                     >
                       <span className="flex items-center gap-3 font-semibold text-slate-900">
                         <ChartNoAxesCombined className="size-5 text-slate-500" />
@@ -349,7 +349,7 @@ export function DashboardPage() {
                 }`}
               >
                 <div>
-                  <div className="mb-3 inline-flex rounded-2xl bg-[#f4f7fb] p-3 md:mb-4">
+                  <div className="mb-3 inline-flex rounded-none bg-[#f4f7fb] p-3 md:mb-4">
                     <Icon className="size-5 text-slate-700" />
                   </div>
                   <h3 className="text-base font-semibold text-slate-900">

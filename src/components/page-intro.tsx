@@ -18,7 +18,7 @@ export function PageIntro({
   return (
     <section
       className={cn(
-        "surface-card flex flex-col gap-4 border-slate-100 px-5 py-5 md:gap-6 md:px-6 md:py-7 lg:flex-row lg:items-end lg:justify-between",
+        "surface-panel flex flex-col gap-4 px-5 py-5 md:gap-6 md:px-6 md:py-7 lg:flex-row lg:items-end lg:justify-between",
         className,
       )}
     >

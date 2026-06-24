@@ -11,7 +11,7 @@ type StatCardProps = {
 
 export function StatCard({ label, value, note, tone }: StatCardProps) {
   return (
-    <Card className="surface-card border-slate-100">
+    <Card className="surface-panel">
       <CardContent className="flex items-start justify-between gap-3 px-5 py-5 md:gap-4 md:px-6 md:py-6">
         <div>
           <p className="text-sm text-slate-500">{label}</p>
@@ -22,7 +22,7 @@ export function StatCard({ label, value, note, tone }: StatCardProps) {
             {note}
           </p>
         </div>
-        <div className={`rounded-xl p-2.5 md:rounded-2xl md:p-3 ${tone}`}>
+        <div className={`rounded-none p-2.5 md:p-3 ${tone}`}>
           <ArrowUpRight className="size-4 text-slate-800 md:size-5" />
         </div>
       </CardContent>

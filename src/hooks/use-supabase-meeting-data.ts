@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  startTransition,
   useEffect,
   useMemo,
   useRef,
@@ -232,12 +231,10 @@ export function useSupabaseMeetingData(): UseSupabaseMeetingDataResult {
       return;
     }
 
-    startTransition(() => setRefreshing(true));
+    setRefreshing(true);
     refreshTimeoutRef.current = window.setTimeout(() => {
-      startTransition(() => {
-        setVersion((current) => current + 1);
-        setRefreshing(false);
-      });
+      setVersion((current) => current + 1);
+      setRefreshing(false);
       refreshTimeoutRef.current = null;
     }, MIN_REFRESH_MS);
   };
