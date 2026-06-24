@@ -1,6 +1,13 @@
 "use client";
 
-import { startTransition, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  startTransition,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import type {
   EquipmentRow,
@@ -22,6 +29,7 @@ type UseSupabaseMeetingDataResult = {
 };
 
 const subscribe = () => () => {};
+const MIN_REFRESH_MS = 1000;
 const emptyBundle = {
   rooms: [] as RoomRow[],
   reservations: [] as ReservationRow[],
@@ -204,20 +212,34 @@ export function useSupabaseMeetingData(): UseSupabaseMeetingDataResult {
   const isHydrated = useSyncExternalStore(subscribe, () => true, () => false);
   const [version, setVersion] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const refreshTimeoutRef = useRef<number | null>(null);
 
   const bundle = useMemo(() => {
     void version;
     return isHydrated ? createDemoBundle() : emptyBundle;
   }, [isHydrated, version]);
 
+  useEffect(() => {
+    return () => {
+      if (refreshTimeoutRef.current !== null) {
+        window.clearTimeout(refreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const refetch = async () => {
+    if (refreshing) {
+      return;
+    }
+
     startTransition(() => setRefreshing(true));
-    window.setTimeout(() => {
+    refreshTimeoutRef.current = window.setTimeout(() => {
       startTransition(() => {
         setVersion((current) => current + 1);
         setRefreshing(false);
       });
-    }, 400);
+      refreshTimeoutRef.current = null;
+    }, MIN_REFRESH_MS);
   };
 
   return {

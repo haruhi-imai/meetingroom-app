@@ -123,7 +123,7 @@ export function RequestsPageClient() {
     );
   }
 
-  if (loading && forcedState !== "loading") {
+  if ((loading && forcedState !== "loading") || (refreshing && forcedState !== "refreshing")) {
     return <LoadingOverlay />;
   }
 

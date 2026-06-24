@@ -42,7 +42,7 @@ const actionLinkClass =
 
 export function DashboardPage() {
   const { isGuest } = useAuth();
-  const { rooms, reservations, participants, equipment, loading, error, refetch } =
+  const { rooms, reservations, participants, equipment, loading, refreshing, error, refetch } =
     useSupabaseMeetingData();
   const visibleFeatureHighlights = featureHighlights.filter((feature) => {
     if (!isGuest) {
@@ -52,7 +52,7 @@ export function DashboardPage() {
     return feature.href !== "/requests" && feature.href !== "/insights";
   });
 
-  if (loading) {
+  if (loading || refreshing) {
     return <LoadingOverlay />;
   }
 

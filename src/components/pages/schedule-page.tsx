@@ -33,12 +33,12 @@ const cellTone = {
 };
 
 export function SchedulePageClient() {
-  const { rooms, reservations, equipment, loading, error, refetch } =
+  const { rooms, reservations, equipment, loading, refreshing, error, refetch } =
     useSupabaseMeetingData();
   const [partySize, setPartySize] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState("all");
 
-  if (loading) {
+  if (loading || refreshing) {
     return <LoadingOverlay />;
   }
 

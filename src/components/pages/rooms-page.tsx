@@ -26,7 +26,7 @@ import { useSupabaseMeetingData } from "@/hooks/use-supabase-meeting-data";
 import { createBundle, deriveRoomCards } from "@/lib/meetingroom-view";
 
 export function RoomsPageClient() {
-  const { rooms, reservations, participants, equipment, loading, error, refetch } =
+  const { rooms, reservations, participants, equipment, loading, refreshing, error, refetch } =
     useSupabaseMeetingData();
   const [searchQuery, setSearchQuery] = useState("");
   const [capacityFilter, setCapacityFilter] = useState("all");
@@ -34,7 +34,7 @@ export function RoomsPageClient() {
   const [sortOrder, setSortOrder] = useState("price");
   const deferredSearch = useDeferredValue(searchQuery);
 
-  if (loading) {
+  if (loading || refreshing) {
     return <LoadingOverlay />;
   }
 

@@ -33,10 +33,10 @@ import {
 } from "@/lib/meetingroom-view";
 
 export function PricingPageClient() {
-  const { rooms, reservations, participants, equipment, loading, error, refetch } =
+  const { rooms, reservations, participants, equipment, loading, refreshing, error, refetch } =
     useSupabaseMeetingData();
 
-  if (loading) {
+  if (loading || refreshing) {
     return <LoadingOverlay />;
   }
 

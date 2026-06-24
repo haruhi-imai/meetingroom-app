@@ -26,7 +26,7 @@ import {
 
 export function InsightsPageClient() {
   const { isGuest } = useAuth();
-  const { rooms, reservations, participants, equipment, loading, error, refetch } =
+  const { rooms, reservations, participants, equipment, loading, refreshing, error, refetch } =
     useSupabaseMeetingData();
 
   if (isGuest) {
@@ -38,7 +38,7 @@ export function InsightsPageClient() {
     );
   }
 
-  if (loading) {
+  if (loading || refreshing) {
     return <LoadingOverlay />;
   }
 
