@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Bell, LogOut, Menu, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -28,19 +28,66 @@ const notifications: Array<{
   description: string;
 }> = [];
 
+type HeaderSearchBarProps = {
+  initialQuery: string;
+  onSearch: (query: string) => void;
+};
+
+function HeaderSearchBar({ initialQuery, onSearch }: HeaderSearchBarProps) {
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+
+  return (
+    <div className="mt-3 flex items-center gap-2 lg:mt-4">
+      <div className="relative min-w-0 flex-1">
+        <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400" />
+        <Input
+          className="h-11 rounded-2xl border-slate-200 bg-white pl-10 md:h-12"
+          placeholder="会議室・設備・フロアを検索"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              onSearch(searchQuery);
+            }
+          }}
+        />
+      </div>
+      <Button
+        className="h-11 shrink-0 rounded-2xl bg-[#d9efff] px-4 text-sm font-semibold text-slate-900 hover:bg-[#c9e6ff] md:h-12 md:px-5"
+        onClick={() => onSearch(searchQuery)}
+      >
+        検索
+      </Button>
+    </div>
+  );
+}
+
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationAreaRef = useRef<HTMLDivElement | null>(null);
   const { user, signOut, isGuest } = useAuth();
   const isLoginPath = pathname === "/login" || pathname === "/login/";
+  const headerSearchInitialQuery =
+    pathname.startsWith("/rooms") ? (searchParams.get("q") ?? "") : "";
 
   const handleSignOut = async () => {
     await signOut();
     router.replace("/login");
     router.refresh();
+  };
+
+  const handleSearch = (query: string) => {
+    const normalized = query.trim();
+    const nextPath = normalized.length > 0
+      ? `/rooms?q=${encodeURIComponent(normalized)}`
+      : "/rooms";
+
+    router.push(nextPath);
   };
 
   useEffect(() => {
@@ -81,121 +128,117 @@ export function AppShell({ children }: AppShellProps) {
     <Sheet open={open} onOpenChange={setOpen}>
       <div className="min-h-screen">
         <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:py-4 lg:px-6">
-            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-              <Button
-                variant="outline"
-                size="icon-lg"
-                aria-label="メニューを開く"
-                className="size-11 rounded-2xl border-slate-200 bg-white shadow-sm hover:bg-[#fffaf5] sm:size-14"
-                onClick={() => setOpen(true)}
-              >
-                <Menu className="size-5 text-slate-700" />
-              </Button>
-              <div className="min-w-0">
-                <Link
-                  href="/"
-                  className="block truncate text-[15px] font-semibold tracking-tight whitespace-nowrap text-slate-900 sm:text-lg"
-                >
-                  Meeting Room Flow
-                </Link>
-                <p className="hidden text-sm text-slate-500 sm:block">
-                  企業向け会議室予約ダミーUI
-                </p>
-              </div>
-            </div>
-
-            <div className="hidden flex-1 justify-center lg:flex">
-              <div className="w-full max-w-xl">
-                <div className="relative">
-                  <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400" />
-                  <Input
-                    className="h-12 rounded-2xl border-slate-200 bg-white pl-10"
-                    placeholder="会議室・設備・フロアを検索"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-              <div className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right md:block">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
-                  Today
-                </p>
-                <p className="text-sm font-semibold text-slate-900">
-                  6月23日 火曜日
-                </p>
-              </div>
-              <div className="relative" ref={notificationAreaRef}>
+          <div className="mx-auto max-w-7xl px-4 py-3 sm:px-4 sm:py-4 lg:px-6">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
+              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
                 <Button
                   variant="outline"
                   size="icon-lg"
-                  aria-label="通知を確認"
-                  aria-expanded={notificationsOpen}
-                  aria-controls="notification-panel"
-                  className={cn(
-                    "size-11 rounded-2xl border-slate-200 bg-white hover:bg-[#f8fbff] sm:size-12",
-                    notificationsOpen && "bg-[#f8fbff]",
-                  )}
-                  onClick={() => setNotificationsOpen((current) => !current)}
+                  aria-label="メニューを開く"
+                  className="size-11 rounded-2xl border-slate-200 bg-white shadow-sm hover:bg-[#fffaf5] sm:size-14"
+                  onClick={() => setOpen(true)}
                 >
-                  <Bell className="size-5 text-slate-700" />
+                  <Menu className="size-5 text-slate-700" />
                 </Button>
-                {notificationsOpen ? (
-                  <div
-                    id="notification-panel"
-                    role="dialog"
-                    aria-label="通知一覧"
-                    className="fixed top-[4.9rem] right-4 left-4 z-50 overflow-hidden rounded-[26px] border border-white/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,251,255,0.96)_100%)] shadow-[0_28px_90px_-42px_rgba(15,23,42,0.42)] ring-1 ring-slate-200/70 backdrop-blur-xl sm:absolute sm:top-[calc(100%+0.75rem)] sm:right-0 sm:left-auto sm:w-[22rem]"
+                <div className="min-w-0">
+                  <Link
+                    href="/"
+                    className="block truncate text-[15px] font-semibold tracking-tight whitespace-nowrap text-slate-900 sm:text-lg"
                   >
-                    <div className="border-b border-slate-200/80 px-5 py-4">
-                      <p className="text-sm font-semibold text-slate-900">通知</p>
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
-                        予約変更や承認結果をここで確認できる想定です。
-                      </p>
-                    </div>
-                    <div className="px-5 py-5">
-                      {notifications.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-200 bg-white/75 px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                          <div className="rounded-2xl bg-[#eef5ff] p-3 text-slate-700 shadow-[0_12px_24px_-18px_rgba(74,144,226,0.55)]">
-                            <Bell className="size-5" />
+                    Meeting Room Flow
+                  </Link>
+                  <p className="hidden text-sm text-slate-500 sm:block">
+                    企業向け会議室予約ダミーUI
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                <div className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right md:block">
+                  <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
+                    Today
+                  </p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    6月23日 火曜日
+                  </p>
+                </div>
+                <div className="relative" ref={notificationAreaRef}>
+                  <Button
+                    variant="outline"
+                    size="icon-lg"
+                    aria-label="通知を確認"
+                    aria-expanded={notificationsOpen}
+                    aria-controls="notification-panel"
+                    className={cn(
+                      "size-11 rounded-2xl border-slate-200 bg-white hover:bg-[#f8fbff] sm:size-12",
+                      notificationsOpen && "bg-[#f8fbff]",
+                    )}
+                    onClick={() => setNotificationsOpen((current) => !current)}
+                  >
+                    <Bell className="size-5 text-slate-700" />
+                  </Button>
+                  {notificationsOpen ? (
+                    <div
+                      id="notification-panel"
+                      role="dialog"
+                      aria-label="通知一覧"
+                      className="fixed top-[4.9rem] right-4 left-4 z-50 overflow-hidden rounded-[26px] border border-white/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,251,255,0.96)_100%)] shadow-[0_28px_90px_-42px_rgba(15,23,42,0.42)] ring-1 ring-slate-200/70 backdrop-blur-xl sm:absolute sm:top-[calc(100%+0.75rem)] sm:right-0 sm:left-auto sm:w-[22rem]"
+                    >
+                      <div className="border-b border-slate-200/80 px-5 py-4">
+                        <p className="text-sm font-semibold text-slate-900">通知</p>
+                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                          予約変更や承認結果をここで確認できる想定です。
+                        </p>
+                      </div>
+                      <div className="px-5 py-5">
+                        {notifications.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-200 bg-white/75 px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+                            <div className="rounded-2xl bg-[#eef5ff] p-3 text-slate-700 shadow-[0_12px_24px_-18px_rgba(74,144,226,0.55)]">
+                              <Bell className="size-5" />
+                            </div>
+                            <p className="mt-4 text-sm font-semibold text-slate-900">
+                              通知はまだありません
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-slate-600">
+                              予約の更新や承認結果が出た時に、ここへ一覧表示します。
+                            </p>
                           </div>
-                          <p className="mt-4 text-sm font-semibold text-slate-900">
-                            通知はまだありません
-                          </p>
-                          <p className="mt-2 text-sm leading-6 text-slate-600">
-                            予約の更新や承認結果が出た時に、ここへ一覧表示します。
-                          </p>
-                        </div>
-                      ) : null}
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ) : null}
+                  ) : null}
+                </div>
+                <div className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left lg:block">
+                  <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
+                    Account
+                  </p>
+                  <p className="max-w-[180px] truncate text-sm font-semibold text-slate-900">
+                    {user?.email ?? "Signed in"}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  aria-label="ログアウト"
+                  className="hidden h-12 rounded-2xl border-slate-200 bg-white px-4 text-slate-900 hover:bg-[#f8fbff] sm:inline-flex"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="size-4" />
+                  <span>ログアウト</span>
+                </Button>
+                <Link
+                  href={pathname === "/schedule" ? "/" : "/schedule"}
+                  className="hidden h-12 items-center justify-center rounded-2xl bg-[#d9efff] px-5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#c9e6ff] sm:inline-flex"
+                >
+                  {pathname === "/schedule" ? "ダッシュボードへ" : "今すぐ予約"}
+                </Link>
               </div>
-              <div className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left lg:block">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
-                  Account
-                </p>
-                <p className="max-w-[180px] truncate text-sm font-semibold text-slate-900">
-                  {user?.email ?? "Signed in"}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                aria-label="ログアウト"
-                className="hidden h-12 rounded-2xl border-slate-200 bg-white px-4 text-slate-900 hover:bg-[#f8fbff] sm:inline-flex"
-                onClick={handleSignOut}
-              >
-                <LogOut className="size-4" />
-                <span>ログアウト</span>
-              </Button>
-              <Link
-                href={pathname === "/schedule" ? "/" : "/schedule"}
-                className="hidden h-12 items-center justify-center rounded-2xl bg-[#d9efff] px-5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#c9e6ff] sm:inline-flex"
-              >
-                {pathname === "/schedule" ? "ダッシュボードへ" : "今すぐ予約"}
-              </Link>
             </div>
+
+            <HeaderSearchBar
+              key={`${pathname}:${headerSearchInitialQuery}`}
+              initialQuery={headerSearchInitialQuery}
+              onSearch={handleSearch}
+            />
           </div>
         </header>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeferredValue, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
 
 import { EmptyState } from "@/components/empty-state";
@@ -23,44 +24,125 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { useSupabaseMeetingData } from "@/hooks/use-supabase-meeting-data";
-import { createBundle, deriveRoomCards } from "@/lib/meetingroom-view";
+import {
+  createBundle,
+  deriveRoomCards,
+  type RoomCardData,
+} from "@/lib/meetingroom-view";
+import type {
+  EquipmentRow,
+  ParticipantRow,
+  ReservationRow,
+  RoomRow,
+} from "@/lib/supabase/types";
 
-export function RoomsPageClient() {
-  const { rooms, reservations, participants, equipment, loading, refreshing, error, refetch } =
-    useSupabaseMeetingData();
-  const [searchQuery, setSearchQuery] = useState("");
+function hashText(value: string) {
+  return Array.from(value).reduce((hash, char) => {
+    return (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }, 7);
+}
+
+function pickBySeed<T>(items: T[], seed: number) {
+  return items[seed % items.length];
+}
+
+function createSuggestedRoom(
+  query: string,
+  capacityFilter: string,
+  equipmentFilter: string,
+): RoomCardData {
+  const normalized = query.trim();
+  const seed = hashText(`${normalized}:${capacityFilter}:${equipmentFilter}`);
+  const capacityOptions =
+    capacityFilter === "small"
+      ? [4, 6]
+      : capacityFilter === "medium"
+        ? [6, 8, 10]
+        : capacityFilter === "large"
+          ? [12, 16, 20]
+          : [4, 6, 8, 10, 12, 16, 20];
+  const statusOptions: RoomCardData["status"][] = ["空室", "空室", "空室", "調整中", "利用中"];
+  const rateOptions = [2200, 2800, 3200, 3600, 4200, 4800, 5600, 6800];
+  const floorOptions = [
+    "5F West",
+    "6F South",
+    "7F East",
+    "8F Central",
+    "9F North",
+  ];
+  const nextSlotOptions = [
+    "今すぐ - 13:00",
+    "今すぐ - 15:00",
+    "14:00から予約可",
+    "16:00から予約可",
+    "本日終日予約可",
+  ];
+  const durationOptions = ["最短30分", "最短45分", "最短1時間", "最短90分"];
+  const featurePool = ["モニター", "カメラ", "ボード", "個室ブース", "Web会議設備", "録画対応"];
+  const equipmentLabelMap: Record<string, string> = {
+    all: "",
+    monitor: "モニター",
+    camera: "カメラ",
+    board: "ボード",
+  };
+  const preferredFeature = equipmentLabelMap[equipmentFilter];
+  const features = Array.from(
+    new Set(
+      [preferredFeature, pickBySeed(featurePool, seed), pickBySeed(featurePool, seed + 3)].filter(
+        Boolean,
+      ),
+    ),
+  ) as string[];
+  const compactQuery = normalized.replace(/\s+/g, " ").slice(0, 18);
+
+  return {
+    id: `suggested-${seed}`,
+    name: `${compactQuery} 会議室`,
+    floor: pickBySeed(floorOptions, seed + 5),
+    status: pickBySeed(statusOptions, seed + 7),
+    nextSlot: pickBySeed(nextSlotOptions, seed + 11),
+    capacity: pickBySeed(capacityOptions, seed + 13),
+    hourlyRate: pickBySeed(rateOptions, seed + 17),
+    duration: pickBySeed(durationOptions, seed + 19),
+    note: `検索語「${normalized}」をもとに自動生成した提案会議室です。`,
+    features: features.length > 0 ? features : ["モニター"],
+  };
+}
+
+type RoomsCatalogViewProps = {
+  equipment: EquipmentRow[];
+  initialSearchQuery: string;
+  participants: ParticipantRow[];
+  refetch: () => void;
+  reservations: ReservationRow[];
+  rooms: RoomRow[];
+};
+
+function RoomsCatalogView({
+  equipment,
+  initialSearchQuery,
+  participants,
+  refetch,
+  reservations,
+  rooms,
+}: RoomsCatalogViewProps) {
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [capacityFilter, setCapacityFilter] = useState("all");
   const [equipmentFilter, setEquipmentFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("price");
   const deferredSearch = useDeferredValue(searchQuery);
-
-  if (loading || refreshing) {
-    return <LoadingOverlay />;
-  }
-
-  if (error) {
-    return (
-      <EmptyState
-        title="エラーが発生しました"
-        description="もう一度試してください"
-        action={
-          <Button
-            className="h-12 rounded-2xl bg-[#d9efff] px-5 text-slate-900 hover:bg-[#c9e6ff]"
-            onClick={refetch}
-          >
-            リロード
-          </Button>
-        }
-      />
-    );
-  }
+  const normalizedSearch = deferredSearch.trim();
 
   const roomCards = deriveRoomCards(createBundle(rooms, reservations, participants, equipment));
-  let filteredRooms = roomCards.filter((room) =>
-    `${room.name} ${room.floor} ${room.features.join(" ")}`.toLowerCase().includes(
-      deferredSearch.toLowerCase(),
-    ),
-  );
+  let filteredRooms = roomCards.filter((room) => {
+    if (normalizedSearch.length === 0) {
+      return true;
+    }
+
+    return `${room.name} ${room.floor} ${room.features.join(" ")}`.toLowerCase().includes(
+      normalizedSearch.toLowerCase(),
+    );
+  });
 
   if (capacityFilter === "small") {
     filteredRooms = filteredRooms.filter((room) => room.capacity <= 4);
@@ -90,6 +172,13 @@ export function RoomsPageClient() {
     }
     return a.hourlyRate - b.hourlyRate;
   });
+
+  if (normalizedSearch.length > 0) {
+    filteredRooms = [
+      createSuggestedRoom(normalizedSearch, capacityFilter, equipmentFilter),
+      ...filteredRooms,
+    ];
+  }
 
   const capacityLabel =
     {
@@ -210,5 +299,45 @@ export function RoomsPageClient() {
         </div>
       )}
     </div>
+  );
+}
+
+export function RoomsPageClient() {
+  const searchParams = useSearchParams();
+  const { rooms, reservations, participants, equipment, loading, refreshing, error, refetch } =
+    useSupabaseMeetingData();
+  const initialSearchQuery = searchParams.get("q") ?? "";
+
+  if (loading || refreshing) {
+    return <LoadingOverlay />;
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        title="エラーが発生しました"
+        description="もう一度試してください"
+        action={
+          <Button
+            className="h-12 rounded-2xl bg-[#d9efff] px-5 text-slate-900 hover:bg-[#c9e6ff]"
+            onClick={refetch}
+          >
+            リロード
+          </Button>
+        }
+      />
+    );
+  }
+
+  return (
+    <RoomsCatalogView
+      key={initialSearchQuery}
+      equipment={equipment}
+      initialSearchQuery={initialSearchQuery}
+      participants={participants}
+      refetch={refetch}
+      reservations={reservations}
+      rooms={rooms}
+    />
   );
 }
