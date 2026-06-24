@@ -28,7 +28,20 @@ export function RoomCard({ room, compact = true }: RoomCardProps) {
   const hourlyRateLabel = new Intl.NumberFormat("ja-JP", {
     maximumFractionDigits: 0,
   }).format(room.hourlyRate);
-  const scheduleHref = `/schedule?room=${encodeURIComponent(room.id)}`;
+  const scheduleParams = new URLSearchParams({
+    room: room.id,
+  });
+
+  if (room.id.startsWith("suggested-")) {
+    scheduleParams.set("roomName", room.name);
+    scheduleParams.set("roomFloor", room.floor);
+    scheduleParams.set("roomCapacity", String(room.capacity));
+    scheduleParams.set("roomRate", String(room.hourlyRate));
+    scheduleParams.set("roomStatus", room.status);
+    scheduleParams.set("roomNextSlot", room.nextSlot);
+  }
+
+  const scheduleHref = `/schedule?${scheduleParams.toString()}`;
 
   return (
     <Card className="surface-panel h-full min-w-0">

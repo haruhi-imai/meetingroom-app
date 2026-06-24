@@ -25,13 +25,79 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSupabaseMeetingData } from "@/hooks/use-supabase-meeting-data";
-import { deriveScheduleBoard, timeSlots } from "@/lib/meetingroom-view";
+import { deriveScheduleBoard, formatYenPerHour, timeSlots } from "@/lib/meetingroom-view";
 
 const cellTone = {
   available: "bg-[#dff4e5] text-slate-800",
   busy: "bg-[#eef2f8] text-slate-500",
   almost: "bg-[#fff0df] text-slate-700",
 };
+
+type ScheduleCellState = keyof typeof cellTone;
+
+type SyntheticScheduleRoom = {
+  id: string;
+  name: string;
+  floor: string;
+  capacity: number;
+  hourlyRate: number;
+  status: "空室" | "調整中" | "利用中";
+  nextSlot: string;
+};
+
+function createSyntheticScheduleRow(room: SyntheticScheduleRoom) {
+  const immediateWindowMatch = room.nextSlot.match(/今すぐ\s*-\s*(\d{2}:\d{2})/);
+  const availableFromMatch = room.nextSlot.match(/(\d{2}:\d{2})から予約可/);
+
+  return {
+    roomName: room.name,
+    hourlyRate: formatYenPerHour(room.hourlyRate),
+    meta: `${room.capacity}名 | ${room.floor}`,
+    slots: timeSlots.map((slot) => {
+      if (room.status === "調整中") {
+        return { time: slot, label: "調整中", state: "busy" as ScheduleCellState };
+      }
+
+      if (availableFromMatch) {
+        const availableFrom = availableFromMatch[1];
+        const state: ScheduleCellState = slot < availableFrom ? "busy" : "available";
+        return {
+          time: slot,
+          label: state === "busy" ? "利用中" : "予約可",
+          state,
+        };
+      }
+
+      if (room.status === "利用中") {
+        return {
+          time: slot,
+          label: slot === timeSlots[0] ? "利用中" : "予約可",
+          state:
+            slot === timeSlots[0]
+              ? ("busy" as ScheduleCellState)
+              : ("available" as ScheduleCellState),
+        };
+      }
+
+      if (immediateWindowMatch) {
+        const reservationStart = immediateWindowMatch[1];
+        if (slot === reservationStart) {
+          return {
+            time: slot,
+            label: `${reservationStart}開始`,
+            state: "almost" as ScheduleCellState,
+          };
+        }
+      }
+
+      return {
+        time: slot,
+        label: "予約可",
+        state: "available" as ScheduleCellState,
+      };
+    }),
+  };
+}
 
 export function SchedulePageClient() {
   const pathname = usePathname();
@@ -42,10 +108,24 @@ export function SchedulePageClient() {
   const [partySize, setPartySize] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState("all");
   const requestedRoomId = searchParams.get("room");
-  const roomFilter =
-    requestedRoomId && rooms.some((room) => room.id === requestedRoomId)
-      ? requestedRoomId
-      : "all";
+  const selectedRoom = requestedRoomId
+    ? rooms.find((room) => room.id === requestedRoomId) ?? null
+    : null;
+  const syntheticRoom =
+    requestedRoomId && !selectedRoom && searchParams.get("roomName")
+      ? {
+          id: requestedRoomId,
+          name: searchParams.get("roomName") ?? "検索結果会議室",
+          floor: searchParams.get("roomFloor") ?? "フロア未設定",
+          capacity: Number.parseInt(searchParams.get("roomCapacity") ?? "0", 10) || 0,
+          hourlyRate: Number.parseInt(searchParams.get("roomRate") ?? "0", 10) || 0,
+          status:
+            (searchParams.get("roomStatus") as SyntheticScheduleRoom["status"]) ?? "空室",
+          nextSlot: searchParams.get("roomNextSlot") ?? "本日終日予約可",
+        }
+      : null;
+  const roomFilter = selectedRoom?.id ?? syntheticRoom?.id ?? "all";
+  const isFocusedRoomView = roomFilter !== "all";
 
   if (loading || refreshing) {
     return <LoadingOverlay />;
@@ -87,7 +167,11 @@ export function SchedulePageClient() {
 
     return matchesRoom && matchesPartySize && matchesEquipment;
   });
-  const board = deriveScheduleBoard(filteredRooms, reservations);
+  const board = selectedRoom
+    ? deriveScheduleBoard(filteredRooms, reservations)
+    : syntheticRoom
+      ? [createSyntheticScheduleRow(syntheticRoom)]
+      : deriveScheduleBoard(filteredRooms, reservations);
 
   if (board.length === 0) {
     return (
@@ -132,9 +216,25 @@ export function SchedulePageClient() {
       : equipmentOptions.find((option) => option.value === equipmentFilter)?.label ??
         "設備を選択";
   const roomFilterLabel =
-    roomFilter === "all"
+    syntheticRoom
+      ? syntheticRoom.name
+      : roomFilter === "all"
       ? "すべての会議室"
       : rooms.find((room) => room.id === roomFilter)?.name ?? "会議室を選択";
+  const handleClearRoomFocus = () => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+
+    nextParams.delete("room");
+    nextParams.delete("roomName");
+    nextParams.delete("roomFloor");
+    nextParams.delete("roomCapacity");
+    nextParams.delete("roomRate");
+    nextParams.delete("roomStatus");
+    nextParams.delete("roomNextSlot");
+
+    const query = nextParams.toString();
+    router.push(query.length > 0 ? `${pathname}?${query}` : pathname);
+  };
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -161,82 +261,115 @@ export function SchedulePageClient() {
         }
       />
 
-      <Card className="surface-card border-slate-100">
-        <CardHeader>
-          <CardTitle className="text-xl">予約条件</CardTitle>
-          <CardDescription>
-            利用人数と必要な設備に合う会議室だけを表示できます。
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-700">会議室</p>
-            <Select
-              value={roomFilter}
-              onValueChange={(value) => {
-                const nextParams = new URLSearchParams(searchParams.toString());
-                const nextRoomFilter = value ?? "all";
+      {isFocusedRoomView ? (
+        <Card className="surface-card border-slate-100">
+          <CardHeader>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle className="text-xl">{roomFilterLabel}</CardTitle>
+                <CardDescription>
+                  この会議室だけの空き状況を表示しています。
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                className="h-11 rounded-2xl border-slate-200 bg-white px-4"
+                onClick={handleClearRoomFocus}
+              >
+                全会議室に戻る
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Badge variant="secondary" className="bg-[#eef5ff] text-slate-700">
+              {board[0]?.meta ?? "会議室情報"}
+            </Badge>
+            <Badge variant="secondary" className="bg-[#f4f7fb] text-slate-700">
+              {board[0]?.hourlyRate ?? "-"}
+            </Badge>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="surface-card border-slate-100">
+          <CardHeader>
+            <CardTitle className="text-xl">予約条件</CardTitle>
+            <CardDescription>
+              利用人数と必要な設備に合う会議室だけを表示できます。
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-700">会議室</p>
+              <Select
+                value={roomFilter}
+                onValueChange={(value) => {
+                  const nextParams = new URLSearchParams(searchParams.toString());
+                  const nextRoomFilter = value ?? "all";
 
-                if (nextRoomFilter === "all") {
-                  nextParams.delete("room");
-                } else {
-                  nextParams.set("room", nextRoomFilter);
-                }
+                  if (nextRoomFilter === "all") {
+                    nextParams.delete("room");
+                  } else {
+                    nextParams.set("room", nextRoomFilter);
+                  }
 
-                const query = nextParams.toString();
-                router.push(query.length > 0 ? `${pathname}?${query}` : pathname);
-              }}
-            >
-              <SelectTrigger className="h-12 w-full rounded-2xl bg-white">
-                <span className="flex flex-1 text-left">{roomFilterLabel}</span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべての会議室</SelectItem>
-                {rooms.map((room) => (
-                  <SelectItem key={room.id} value={room.id}>
-                    {room.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-700">利用人数</p>
-            <Input
-              inputMode="numeric"
-              className="h-12 rounded-2xl bg-white"
-              placeholder="例: 6"
-              value={partySize}
-              onChange={(event) => {
-                const value = event.target.value.replace(/[^\d]/g, "");
-                setPartySize(value);
-              }}
-            />
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-700">必要な設備</p>
-            <Select
-              value={equipmentFilter}
-              onValueChange={(value) => setEquipmentFilter(value ?? "all")}
-            >
-              <SelectTrigger className="h-12 w-full rounded-2xl bg-white">
-                <span className="flex flex-1 text-left">{equipmentFilterLabel}</span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">指定なし</SelectItem>
-                {equipmentOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button className="h-12 rounded-2xl bg-[#d9efff] px-6 text-slate-900 hover:bg-[#c9e6ff]">
-            反映中
-          </Button>
-        </CardContent>
-      </Card>
+                  const query = nextParams.toString();
+                  router.push(query.length > 0 ? `${pathname}?${query}` : pathname);
+                }}
+              >
+                <SelectTrigger className="h-12 w-full rounded-2xl bg-white">
+                  <span className="flex flex-1 text-left">{roomFilterLabel}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべての会議室</SelectItem>
+                  {syntheticRoom ? (
+                    <SelectItem value={syntheticRoom.id}>{syntheticRoom.name}</SelectItem>
+                  ) : null}
+                  {rooms.map((room) => (
+                    <SelectItem key={room.id} value={room.id}>
+                      {room.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-700">利用人数</p>
+              <Input
+                inputMode="numeric"
+                className="h-12 rounded-2xl bg-white"
+                placeholder="例: 6"
+                value={partySize}
+                onChange={(event) => {
+                  const value = event.target.value.replace(/[^\d]/g, "");
+                  setPartySize(value);
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-700">必要な設備</p>
+              <Select
+                value={equipmentFilter}
+                onValueChange={(value) => setEquipmentFilter(value ?? "all")}
+              >
+                <SelectTrigger className="h-12 w-full rounded-2xl bg-white">
+                  <span className="flex flex-1 text-left">{equipmentFilterLabel}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">指定なし</SelectItem>
+                  {equipmentOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button className="h-12 rounded-2xl bg-[#d9efff] px-6 text-slate-900 hover:bg-[#c9e6ff]">
+              反映中
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="surface-card border-slate-100">
         <CardHeader>
