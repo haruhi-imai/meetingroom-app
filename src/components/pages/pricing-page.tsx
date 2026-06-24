@@ -29,6 +29,7 @@ import {
   deriveRateRows,
   deriveRoomCards,
   formatYen,
+  formatYenPerHour,
 } from "@/lib/meetingroom-view";
 
 export function PricingPageClient() {
@@ -108,10 +109,7 @@ export function PricingPageClient() {
               <div className="rounded-[24px] bg-[#f6f9fc] p-5">
                 <p className="text-sm text-slate-500">時間単価</p>
                 <p className="mt-2 text-3xl font-semibold text-slate-900">
-                  {formatYen(plan.hourlyRate)}
-                  <span className="ml-2 text-base font-medium text-slate-500">
-                    / 時間
-                  </span>
+                  {formatYenPerHour(plan.hourlyRate)}
                 </p>
               </div>
               <ul className="space-y-2 text-sm leading-6 text-slate-600">

@@ -258,6 +258,10 @@ export function formatYen(value: number) {
   }).format(value);
 }
 
+export function formatYenPerHour(value: number) {
+  return `${formatYen(value)}/h`;
+}
+
 export function deriveRoomCards({
   rooms,
   reservations,
@@ -434,7 +438,7 @@ export function deriveScheduleBoard(
 
     return {
       roomName: room.name,
-      hourlyRate: `${formatYen(room.hourly_rate)} / h`,
+      hourlyRate: formatYenPerHour(room.hourly_rate),
       meta: `${room.capacity}名 | ${room.floor ?? "フロア未設定"}`,
       slots: timeSlots.map((slot) => ({
         time: slot,

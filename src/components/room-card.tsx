@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatYen, type RoomCardData } from "@/lib/meetingroom-view";
+import { formatYenPerHour, type RoomCardData } from "@/lib/meetingroom-view";
 
 type RoomCardProps = {
   room: RoomCardData;
@@ -44,7 +44,7 @@ export function RoomCard({ room, compact = true }: RoomCardProps) {
               時間料金
             </p>
             <p className="mt-1.5 text-lg font-semibold text-slate-900 md:mt-2 md:text-xl">
-              {formatYen(room.hourlyRate)}
+              {formatYenPerHour(room.hourlyRate)}
             </p>
           </div>
           <div className="rounded-2xl bg-[#f6f9fc] p-3 md:p-4">
