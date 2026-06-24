@@ -146,7 +146,7 @@ export function AppShell({ children }: AppShellProps) {
                     id="notification-panel"
                     role="dialog"
                     aria-label="通知一覧"
-                    className="absolute top-[calc(100%+0.75rem)] right-[-3.25rem] z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-[24px] border border-slate-200/90 bg-white/96 shadow-[0_30px_70px_-35px_rgba(15,23,42,0.4)] backdrop-blur-xl sm:right-0"
+                    className="fixed top-[4.9rem] right-4 left-4 z-50 overflow-hidden rounded-[26px] border border-white/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,251,255,0.96)_100%)] shadow-[0_28px_90px_-42px_rgba(15,23,42,0.42)] ring-1 ring-slate-200/70 backdrop-blur-xl sm:absolute sm:top-[calc(100%+0.75rem)] sm:right-0 sm:left-auto sm:w-[22rem]"
                   >
                     <div className="border-b border-slate-200/80 px-5 py-4">
                       <p className="text-sm font-semibold text-slate-900">通知</p>
@@ -156,8 +156,8 @@ export function AppShell({ children }: AppShellProps) {
                     </div>
                     <div className="px-5 py-5">
                       {notifications.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center rounded-[20px] border border-dashed border-slate-200 bg-[#fbfdff] px-5 py-8 text-center">
-                          <div className="rounded-2xl bg-[#eef5ff] p-3 text-slate-700">
+                        <div className="flex flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-200 bg-white/75 px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+                          <div className="rounded-2xl bg-[#eef5ff] p-3 text-slate-700 shadow-[0_12px_24px_-18px_rgba(74,144,226,0.55)]">
                             <Bell className="size-5" />
                           </div>
                           <p className="mt-4 text-sm font-semibold text-slate-900">
