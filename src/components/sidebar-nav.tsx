@@ -71,7 +71,7 @@ export function SidebarNav({
   onSignOut,
 }: SidebarNavProps) {
   const visibleItems = navItems.filter((item) => {
-    if (isGuest && item.href === "/insights") {
+    if (isGuest && (item.href === "/requests" || item.href === "/insights")) {
       return false;
     }
 

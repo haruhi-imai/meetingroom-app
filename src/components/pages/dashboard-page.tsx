@@ -44,6 +44,13 @@ export function DashboardPage() {
   const { isGuest } = useAuth();
   const { rooms, reservations, participants, equipment, loading, error, refetch } =
     useSupabaseMeetingData();
+  const visibleFeatureHighlights = featureHighlights.filter((feature) => {
+    if (!isGuest) {
+      return true;
+    }
+
+    return feature.href !== "/requests" && feature.href !== "/insights";
+  });
 
   if (loading) {
     return <LoadingOverlay />;
@@ -263,14 +270,40 @@ export function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <details className="surface-soft p-4 md:hidden">
-                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">
-                  関連画面を開く
-                </summary>
-                <div className="mt-3 grid gap-3">
+              {!isGuest ? (
+                <details className="surface-soft p-4 md:hidden">
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">
+                    関連画面を開く
+                  </summary>
+                  <div className="mt-3 grid gap-3">
+                    <Link
+                      href="/requests"
+                      className="flex items-center justify-between rounded-2xl bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
+                    >
+                      <span className="flex items-center gap-3 font-semibold text-slate-900">
+                        <DoorOpen className="size-5 text-slate-500" />
+                        申請一覧を見る
+                      </span>
+                      <ArrowRight className="size-4 text-slate-400" />
+                    </Link>
+                    <Link
+                      href="/insights"
+                      className="flex items-center justify-between rounded-2xl bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
+                    >
+                      <span className="flex items-center gap-3 font-semibold text-slate-900">
+                        <ChartNoAxesCombined className="size-5 text-slate-500" />
+                        利用傾向を見る
+                      </span>
+                      <ArrowRight className="size-4 text-slate-400" />
+                    </Link>
+                  </div>
+                </details>
+              ) : null}
+              {!isGuest ? (
+                <div className="hidden gap-3 md:grid md:grid-cols-2">
                   <Link
                     href="/requests"
-                    className="flex items-center justify-between rounded-2xl bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
+                    className="surface-soft flex items-center justify-between p-3.5 transition hover:-translate-y-0.5 md:p-4"
                   >
                     <span className="flex items-center gap-3 font-semibold text-slate-900">
                       <DoorOpen className="size-5 text-slate-500" />
@@ -280,7 +313,7 @@ export function DashboardPage() {
                   </Link>
                   <Link
                     href="/insights"
-                    className="flex items-center justify-between rounded-2xl bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
+                    className="surface-soft flex items-center justify-between p-3.5 transition hover:-translate-y-0.5 md:p-4"
                   >
                     <span className="flex items-center gap-3 font-semibold text-slate-900">
                       <ChartNoAxesCombined className="size-5 text-slate-500" />
@@ -289,29 +322,7 @@ export function DashboardPage() {
                     <ArrowRight className="size-4 text-slate-400" />
                   </Link>
                 </div>
-              </details>
-              <div className="hidden gap-3 md:grid md:grid-cols-2">
-                <Link
-                  href="/requests"
-                  className="surface-soft flex items-center justify-between p-3.5 transition hover:-translate-y-0.5 md:p-4"
-                >
-                  <span className="flex items-center gap-3 font-semibold text-slate-900">
-                    <DoorOpen className="size-5 text-slate-500" />
-                    申請一覧を見る
-                  </span>
-                  <ArrowRight className="size-4 text-slate-400" />
-                </Link>
-                <Link
-                  href="/insights"
-                  className="surface-soft flex items-center justify-between p-3.5 transition hover:-translate-y-0.5 md:p-4"
-                >
-                  <span className="flex items-center gap-3 font-semibold text-slate-900">
-                    <ChartNoAxesCombined className="size-5 text-slate-500" />
-                    利用傾向を見る
-                  </span>
-                  <ArrowRight className="size-4 text-slate-400" />
-                </Link>
-              </div>
+              ) : null}
             </CardContent>
           </Card>
         </div>
@@ -325,7 +336,7 @@ export function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 md:gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {featureHighlights.map((feature) => {
+          {visibleFeatureHighlights.map((feature) => {
             const Icon = feature.icon;
             return (
               <Link
@@ -385,7 +396,9 @@ export function DashboardPage() {
         </Link>
         <Link
           href="/insights"
-          className="hidden items-center justify-between px-4 py-3.5 text-slate-900 transition hover:-translate-y-0.5 md:flex md:px-5 md:py-4"
+          className={`items-center justify-between px-4 py-3.5 text-slate-900 transition hover:-translate-y-0.5 md:px-5 md:py-4 ${
+            isGuest ? "hidden" : "hidden md:flex"
+          }`}
         >
           <span className="flex items-center gap-3 font-semibold">
             <ChartNoAxesCombined className="size-5 text-slate-500" />

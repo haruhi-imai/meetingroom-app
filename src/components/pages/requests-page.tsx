@@ -114,6 +114,15 @@ export function RequestsPageClient() {
   const { rooms, reservations, participants, equipment, loading, refreshing, error, refetch } =
     useSupabaseMeetingData();
 
+  if (isGuest) {
+    return (
+      <EmptyState
+        title="この画面は利用できません"
+        description="ゲスト利用では申請・調整画面を閲覧できません。通常アカウントでログインしてください。"
+      />
+    );
+  }
+
   if (loading && forcedState !== "loading") {
     return <LoadingOverlay />;
   }
@@ -241,7 +250,7 @@ export function RequestsPageClient() {
                     <TableCell className="font-semibold text-slate-900">
                       {request.title}
                     </TableCell>
-                    <TableCell>{isGuest ? "非表示" : request.owner}</TableCell>
+                    <TableCell>{request.owner}</TableCell>
                     <TableCell>{request.room}</TableCell>
                     <TableCell>{request.slot}</TableCell>
                     <TableCell>
@@ -297,7 +306,6 @@ export function RequestsPageClient() {
           </CardHeader>
           <CardContent className="text-sm leading-6 text-slate-600">
             利用者ごとに必要な情報だけを見せる運用を想定しています。
-            {isGuest ? " ゲスト利用では所有者情報を非表示にしています。" : null}
           </CardContent>
         </Card>
       </div>
