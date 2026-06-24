@@ -23,13 +23,13 @@ export function PageIntro({
       )}
     >
       <div className="max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+        <p className="text-xs font-medium tracking-[0.04em] text-slate-500">
           {eyebrow}
         </p>
-        <h1 className="mt-2 text-[2rem] font-semibold tracking-tight text-slate-950 md:mt-3 md:text-[2.5rem]">
+        <h1 className="mt-2 text-[2.15rem] font-semibold tracking-tight text-slate-950 md:mt-3 md:text-[2.75rem]">
           {title}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 md:mt-3 md:text-base md:leading-7">
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 md:text-base">
           {description}
         </p>
       </div>

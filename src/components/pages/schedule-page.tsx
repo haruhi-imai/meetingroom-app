@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { LoadingOverlay } from "@/components/loading-overlay";
@@ -33,10 +34,18 @@ const cellTone = {
 };
 
 export function SchedulePageClient() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { rooms, reservations, equipment, loading, refreshing, error, refetch } =
     useSupabaseMeetingData();
   const [partySize, setPartySize] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState("all");
+  const requestedRoomId = searchParams.get("room");
+  const roomFilter =
+    requestedRoomId && rooms.some((room) => room.id === requestedRoomId)
+      ? requestedRoomId
+      : "all";
 
   if (loading || refreshing) {
     return <LoadingOverlay />;
@@ -61,6 +70,7 @@ export function SchedulePageClient() {
 
   const requiredSeats = Number.parseInt(partySize, 10);
   const filteredRooms = rooms.filter((room) => {
+    const matchesRoom = roomFilter === "all" ? true : room.id === roomFilter;
     const matchesPartySize =
       Number.isNaN(requiredSeats) || requiredSeats <= 0
         ? true
@@ -75,7 +85,7 @@ export function SchedulePageClient() {
               item.name.toLowerCase().includes(equipmentFilter.toLowerCase()),
           );
 
-    return matchesPartySize && matchesEquipment;
+    return matchesRoom && matchesPartySize && matchesEquipment;
   });
   const board = deriveScheduleBoard(filteredRooms, reservations);
 
@@ -121,6 +131,10 @@ export function SchedulePageClient() {
       ? "指定なし"
       : equipmentOptions.find((option) => option.value === equipmentFilter)?.label ??
         "設備を選択";
+  const roomFilterLabel =
+    roomFilter === "all"
+      ? "すべての会議室"
+      : rooms.find((room) => room.id === roomFilter)?.name ?? "会議室を選択";
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -154,7 +168,38 @@ export function SchedulePageClient() {
             利用人数と必要な設備に合う会議室だけを表示できます。
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 lg:grid-cols-[1fr_1fr_auto]">
+        <CardContent className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-700">会議室</p>
+            <Select
+              value={roomFilter}
+              onValueChange={(value) => {
+                const nextParams = new URLSearchParams(searchParams.toString());
+                const nextRoomFilter = value ?? "all";
+
+                if (nextRoomFilter === "all") {
+                  nextParams.delete("room");
+                } else {
+                  nextParams.set("room", nextRoomFilter);
+                }
+
+                const query = nextParams.toString();
+                router.push(query.length > 0 ? `${pathname}?${query}` : pathname);
+              }}
+            >
+              <SelectTrigger className="h-12 w-full rounded-2xl bg-white">
+                <span className="flex flex-1 text-left">{roomFilterLabel}</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">すべての会議室</SelectItem>
+                {rooms.map((room) => (
+                  <SelectItem key={room.id} value={room.id}>
+                    {room.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
             <p className="text-sm font-medium text-slate-700">利用人数</p>
             <Input

@@ -38,7 +38,7 @@ import {
 } from "@/lib/meetingroom-view";
 
 const actionLinkClass =
-  "inline-flex h-10 items-center justify-center rounded-none px-4 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-0.5 md:h-12 md:px-5";
+  "inline-flex h-10 items-center justify-center rounded-none px-4 text-sm font-semibold text-slate-900 transition md:h-12 md:px-5";
 
 export function DashboardPage() {
   const { isGuest } = useAuth();
@@ -68,7 +68,7 @@ export function DashboardPage() {
         description="もう一度試してください"
         action={
           <Button
-            className="h-12 rounded-none bg-[#d9efff] px-5 text-slate-900 hover:bg-[#c9e6ff]"
+            className="h-12 rounded-none bg-slate-900 px-5 text-white hover:bg-slate-800"
             onClick={refetch}
           >
             リロード
@@ -85,7 +85,7 @@ export function DashboardPage() {
         description="会議室や予約の情報を登録すると、このダッシュボードに反映されます。"
         action={
           <Button
-            className="h-12 rounded-none bg-[#d9efff] px-5 text-slate-900 hover:bg-[#c9e6ff]"
+            className="h-12 rounded-none bg-slate-900 px-5 text-white hover:bg-slate-800"
             onClick={refetch}
           >
             再読み込み
@@ -105,19 +105,19 @@ export function DashboardPage() {
           <>
             <Link
               href="/schedule"
-              className={`${actionLinkClass} bg-[#d9efff] hover:bg-[#c9e6ff]`}
+              className={`${actionLinkClass} bg-slate-900 text-white hover:bg-slate-800`}
             >
               今すぐ予約
             </Link>
             <Link
               href="/pricing"
-              className={`${actionLinkClass} bg-[#ffe8d9] hover:bg-[#ffdcca]`}
+              className={`${actionLinkClass} border border-[#d2d2d7] bg-white hover:bg-[#f5f5f7]`}
             >
               時間料金を見る
             </Link>
             <Button
               variant="outline"
-              className="h-10 rounded-none border-slate-200 bg-white px-4 md:h-12 md:px-5"
+              className="h-10 rounded-none border-[#d2d2d7] bg-white px-4 md:h-12 md:px-5"
               onClick={refetch}
             >
               <RefreshCw className="size-4" />
@@ -145,7 +145,7 @@ export function DashboardPage() {
               </div>
               <Badge
                 variant="secondary"
-                className="h-8 rounded-none bg-[#eef5ff] px-3 text-slate-700"
+                className="h-8 rounded-none bg-[#f0f0f2] px-3 text-slate-700"
               >
                 会議室 {roomCards.length}室
               </Badge>
@@ -153,7 +153,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-4 md:space-y-5">
             <Tabs defaultValue="today" className="gap-4 md:gap-5">
-              <TabsList className="h-auto rounded-none bg-[#f4f7fb] p-1.5">
+              <TabsList className="h-auto rounded-none bg-[#f5f5f7] p-1.5">
                 <TabsTrigger
                   value="today"
                   className="rounded-none px-4 py-2.5 data-active:bg-white"
@@ -184,12 +184,12 @@ export function DashboardPage() {
                   {weeklyFocus.map((item) => (
                     <div
                       key={item.title}
-                      className="surface-panel p-5 transition hover:-translate-y-0.5"
+                      className="surface-panel p-6"
                     >
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <Badge
                           variant="secondary"
-                          className="rounded-none bg-[#fff5ec] text-slate-700"
+                          className="rounded-none bg-[#f0f0f2] text-slate-700"
                         >
                           {item.badge}
                         </Badge>
@@ -236,7 +236,7 @@ export function DashboardPage() {
                         {reservation.room} | {isGuest ? "非表示" : reservation.host}
                       </p>
                     </div>
-                    <Badge className="bg-[#dff4e5] text-slate-800">
+                    <Badge className="rounded-none bg-[#f0f0f2] text-slate-700">
                       {reservation.status}
                     </Badge>
                   </div>
@@ -257,7 +257,7 @@ export function DashboardPage() {
             </CardHeader>
             <CardContent className="space-y-3 md:space-y-4">
               <div className="surface-soft flex items-start gap-3 p-4">
-                <div className="rounded-none bg-[#f5e8ff] p-3 text-slate-800">
+                <div className="rounded-none bg-[#f0f0f2] p-3 text-slate-800">
                   <Sparkles className="size-5" />
                 </div>
                 <div>
@@ -278,7 +278,7 @@ export function DashboardPage() {
                   <div className="mt-3 grid gap-3">
                     <Link
                       href="/requests"
-                      className="flex items-center justify-between rounded-none bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
+                      className="flex items-center justify-between rounded-none bg-white px-3.5 py-3"
                     >
                       <span className="flex items-center gap-3 font-semibold text-slate-900">
                         <DoorOpen className="size-5 text-slate-500" />
@@ -288,7 +288,7 @@ export function DashboardPage() {
                     </Link>
                     <Link
                       href="/insights"
-                      className="flex items-center justify-between rounded-none bg-white px-3.5 py-3 transition hover:-translate-y-0.5"
+                      className="flex items-center justify-between rounded-none bg-white px-3.5 py-3"
                     >
                       <span className="flex items-center gap-3 font-semibold text-slate-900">
                         <ChartNoAxesCombined className="size-5 text-slate-500" />
@@ -303,7 +303,7 @@ export function DashboardPage() {
                 <div className="hidden gap-3 md:grid md:grid-cols-2">
                   <Link
                     href="/requests"
-                    className="surface-soft flex items-center justify-between p-3.5 transition hover:-translate-y-0.5 md:p-4"
+                    className="surface-soft flex items-center justify-between p-3.5 md:p-4"
                   >
                     <span className="flex items-center gap-3 font-semibold text-slate-900">
                       <DoorOpen className="size-5 text-slate-500" />
@@ -313,7 +313,7 @@ export function DashboardPage() {
                   </Link>
                   <Link
                     href="/insights"
-                    className="surface-soft flex items-center justify-between p-3.5 transition hover:-translate-y-0.5 md:p-4"
+                    className="surface-soft flex items-center justify-between p-3.5 md:p-4"
                   >
                     <span className="flex items-center gap-3 font-semibold text-slate-900">
                       <ChartNoAxesCombined className="size-5 text-slate-500" />
@@ -342,14 +342,14 @@ export function DashboardPage() {
               <Link
                 key={feature.title}
                 href={feature.href}
-                className={`surface-soft flex h-full flex-col justify-between p-4 md:p-5 transition hover:-translate-y-1 ${
+                  className={`surface-soft flex h-full flex-col justify-between p-4 md:p-5 ${
                   feature.href === "/requests" || feature.href === "/insights"
                     ? "hidden md:flex"
                     : ""
                 }`}
               >
                 <div>
-                  <div className="mb-3 inline-flex rounded-none bg-[#f4f7fb] p-3 md:mb-4">
+                  <div className="mb-3 inline-flex rounded-none bg-[#f5f5f7] p-3 md:mb-4">
                     <Icon className="size-5 text-slate-700" />
                   </div>
                   <h3 className="text-base font-semibold text-slate-900">
@@ -376,7 +376,7 @@ export function DashboardPage() {
       <div className="grid gap-3 md:gap-4 lg:grid-cols-3">
         <Link
           href="/schedule"
-          className="surface-soft flex items-center justify-between px-4 py-3.5 text-slate-900 transition hover:-translate-y-0.5 md:px-5 md:py-4"
+          className="surface-soft flex items-center justify-between px-4 py-3.5 text-slate-900 md:px-5 md:py-4"
         >
           <span className="flex items-center gap-3 font-semibold">
             <DoorOpen className="size-5 text-slate-500" />
@@ -386,7 +386,7 @@ export function DashboardPage() {
         </Link>
         <Link
           href="/pricing"
-          className="surface-soft flex items-center justify-between px-4 py-3.5 text-slate-900 transition hover:-translate-y-0.5 md:px-5 md:py-4"
+          className="surface-soft flex items-center justify-between px-4 py-3.5 text-slate-900 md:px-5 md:py-4"
         >
           <span className="flex items-center gap-3 font-semibold">
             <CircleDollarSign className="size-5 text-slate-500" />

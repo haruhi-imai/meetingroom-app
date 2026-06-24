@@ -41,7 +41,7 @@ function HeaderSearchBar({ initialQuery, onSearch }: HeaderSearchBarProps) {
       <div className="relative min-w-0 flex-1">
         <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-slate-400" />
         <Input
-          className="h-11 rounded-2xl border-slate-200 bg-white pl-10 md:h-12"
+          className="h-11 rounded-md border-[#d2d2d7] bg-white pl-10 md:h-12"
           placeholder="会議室・設備・フロアを検索"
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
@@ -54,7 +54,7 @@ function HeaderSearchBar({ initialQuery, onSearch }: HeaderSearchBarProps) {
         />
       </div>
       <Button
-        className="h-11 shrink-0 rounded-2xl bg-[#d9efff] px-4 text-sm font-semibold text-slate-900 hover:bg-[#c9e6ff] md:h-12 md:px-5"
+        className="h-11 shrink-0 rounded-md bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800 md:h-12 md:px-5"
         onClick={() => onSearch(searchQuery)}
       >
         検索
@@ -127,7 +127,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <div className="min-h-screen">
-        <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
+        <header className="sticky top-0 z-40 border-b border-[#d2d2d7] bg-[rgba(255,255,255,0.96)]">
           <div className="mx-auto max-w-7xl px-4 py-3 sm:px-4 sm:py-4 lg:px-6">
             <div className="flex items-center justify-between gap-2 sm:gap-4">
               <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
@@ -135,7 +135,7 @@ export function AppShell({ children }: AppShellProps) {
                   variant="outline"
                   size="icon-lg"
                   aria-label="メニューを開く"
-                  className="size-11 rounded-2xl border-slate-200 bg-white shadow-sm hover:bg-[#fffaf5] sm:size-14"
+                  className="size-11 rounded-md border-[#d2d2d7] bg-white shadow-none hover:bg-[#f5f5f7] sm:size-14"
                   onClick={() => setOpen(true)}
                 >
                   <Menu className="size-5 text-slate-700" />
@@ -154,7 +154,7 @@ export function AppShell({ children }: AppShellProps) {
               </div>
 
               <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                <div className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right md:block">
+                <div className="hidden rounded-md border border-[#d2d2d7] bg-white px-4 py-3 text-right md:block">
                   <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
                     Today
                   </p>
@@ -170,8 +170,8 @@ export function AppShell({ children }: AppShellProps) {
                     aria-expanded={notificationsOpen}
                     aria-controls="notification-panel"
                     className={cn(
-                      "size-11 rounded-2xl border-slate-200 bg-white hover:bg-[#f8fbff] sm:size-12",
-                      notificationsOpen && "bg-[#f8fbff]",
+                      "size-11 rounded-md border-[#d2d2d7] bg-white hover:bg-[#f5f5f7] sm:size-12",
+                      notificationsOpen && "bg-[#f5f5f7]",
                     )}
                     onClick={() => setNotificationsOpen((current) => !current)}
                   >
@@ -182,7 +182,7 @@ export function AppShell({ children }: AppShellProps) {
                       id="notification-panel"
                       role="dialog"
                       aria-label="通知一覧"
-                      className="fixed top-[4.9rem] right-4 left-4 z-50 overflow-hidden rounded-[26px] border border-white/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(248,251,255,0.96)_100%)] shadow-[0_28px_90px_-42px_rgba(15,23,42,0.42)] ring-1 ring-slate-200/70 backdrop-blur-xl sm:absolute sm:top-[calc(100%+0.75rem)] sm:right-0 sm:left-auto sm:w-[22rem]"
+                      className="fixed top-[4.9rem] right-4 left-4 z-50 overflow-hidden rounded-md border border-[#d2d2d7] bg-white shadow-[0_12px_32px_-24px_rgba(0,0,0,0.24)] sm:absolute sm:top-[calc(100%+0.75rem)] sm:right-0 sm:left-auto sm:w-[22rem]"
                     >
                       <div className="border-b border-slate-200/80 px-5 py-4">
                         <p className="text-sm font-semibold text-slate-900">通知</p>
@@ -192,8 +192,8 @@ export function AppShell({ children }: AppShellProps) {
                       </div>
                       <div className="px-5 py-5">
                         {notifications.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-200 bg-white/75 px-5 py-8 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
-                            <div className="rounded-2xl bg-[#eef5ff] p-3 text-slate-700 shadow-[0_12px_24px_-18px_rgba(74,144,226,0.55)]">
+                          <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-[#d2d2d7] bg-[#fbfbfd] px-5 py-8 text-center">
+                            <div className="rounded-sm bg-[#f0f0f2] p-3 text-slate-700">
                               <Bell className="size-5" />
                             </div>
                             <p className="mt-4 text-sm font-semibold text-slate-900">
@@ -208,7 +208,7 @@ export function AppShell({ children }: AppShellProps) {
                     </div>
                   ) : null}
                 </div>
-                <div className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left lg:block">
+                <div className="hidden rounded-md border border-[#d2d2d7] bg-white px-4 py-3 text-left lg:block">
                   <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
                     Account
                   </p>
@@ -219,7 +219,7 @@ export function AppShell({ children }: AppShellProps) {
                 <Button
                   variant="outline"
                   aria-label="ログアウト"
-                  className="hidden h-12 rounded-2xl border-slate-200 bg-white px-4 text-slate-900 hover:bg-[#f8fbff] sm:inline-flex"
+                  className="hidden h-12 rounded-md border-[#d2d2d7] bg-white px-4 text-slate-900 hover:bg-[#f5f5f7] sm:inline-flex"
                   onClick={handleSignOut}
                 >
                   <LogOut className="size-4" />
@@ -227,7 +227,7 @@ export function AppShell({ children }: AppShellProps) {
                 </Button>
                 <Link
                   href={pathname === "/schedule" ? "/" : "/schedule"}
-                  className="hidden h-12 items-center justify-center rounded-2xl bg-[#d9efff] px-5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-[#c9e6ff] sm:inline-flex"
+                  className="hidden h-12 items-center justify-center rounded-md bg-slate-900 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 sm:inline-flex"
                 >
                   {pathname === "/schedule" ? "ダッシュボードへ" : "今すぐ予約"}
                 </Link>
@@ -244,7 +244,7 @@ export function AppShell({ children }: AppShellProps) {
 
         <SheetContent
           side="left"
-          className="w-[360px] border-r border-slate-200 bg-white/95 p-0 sm:max-w-[360px]"
+          className="w-[360px] border-r border-[#d2d2d7] bg-white p-0 sm:max-w-[360px]"
         >
           <SheetHeader className="border-b border-slate-200/80 pb-4">
             <SheetTitle>メニュー</SheetTitle>

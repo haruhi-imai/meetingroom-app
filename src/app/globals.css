@@ -49,38 +49,38 @@
 }
 
 :root {
-  --background: #fffdfb;
-  --foreground: #172033;
+  --background: #f5f5f7;
+  --foreground: #1d1d1f;
   --card: #ffffff;
-  --card-foreground: #172033;
+  --card-foreground: #1d1d1f;
   --popover: #ffffff;
-  --popover-foreground: #172033;
-  --primary: #d9efff;
-  --primary-foreground: #172033;
-  --secondary: #ffe8d9;
-  --secondary-foreground: #172033;
-  --muted: #f5f8fc;
-  --muted-foreground: #60708a;
-  --accent: #eef5ff;
-  --accent-foreground: #172033;
-  --destructive: #ffd9d6;
-  --border: #e6edf5;
-  --input: #e6edf5;
-  --ring: #9dc7f8;
-  --chart-1: #c6ddff;
-  --chart-2: #ffd8c2;
-  --chart-3: #d9f1df;
-  --chart-4: #f8d7e4;
-  --chart-5: #ebe4ff;
-  --radius: 1rem;
+  --popover-foreground: #1d1d1f;
+  --primary: #1d1d1f;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f0f2;
+  --secondary-foreground: #1d1d1f;
+  --muted: #f5f5f7;
+  --muted-foreground: #6e6e73;
+  --accent: #f0f0f2;
+  --accent-foreground: #1d1d1f;
+  --destructive: #fff1f0;
+  --border: #d2d2d7;
+  --input: #d2d2d7;
+  --ring: #8e8e93;
+  --chart-1: #dcdce1;
+  --chart-2: #c7c7cc;
+  --chart-3: #b1b1b6;
+  --chart-4: #9a9aa0;
+  --chart-5: #838389;
+  --radius: 0.75rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #172033;
-  --sidebar-primary: #d9efff;
-  --sidebar-primary-foreground: #172033;
-  --sidebar-accent: #f4f7fb;
-  --sidebar-accent-foreground: #172033;
-  --sidebar-border: #e6edf5;
-  --sidebar-ring: #9dc7f8;
+  --sidebar-foreground: #1d1d1f;
+  --sidebar-primary: #f0f0f2;
+  --sidebar-primary-foreground: #1d1d1f;
+  --sidebar-accent: #f5f5f7;
+  --sidebar-accent-foreground: #1d1d1f;
+  --sidebar-border: #d2d2d7;
+  --sidebar-ring: #8e8e93;
 }
 
 @layer base {
@@ -93,24 +93,21 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(circle at top left, rgb(217 239 255 / 0.8), transparent 28%),
-      radial-gradient(circle at top right, rgb(255 232 217 / 0.7), transparent 26%),
-      linear-gradient(180deg, #fffdfb 0%, #f7fbff 100%);
+    background: #f5f5f7;
   }
 }
 
 @layer utilities {
   .surface-card {
-    @apply rounded-sm border border-white/80 bg-white/90 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.35)] backdrop-blur-sm;
+    @apply rounded-sm border border-[#d2d2d7] bg-white shadow-[0_4px_12px_-10px_rgba(0,0,0,0.14)];
   }
 
   .surface-soft {
-    @apply rounded-sm border border-slate-200/80 bg-white/75 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.28)];
+    @apply rounded-sm border border-[#d2d2d7] bg-[#fbfbfd] shadow-[0_4px_10px_-10px_rgba(0,0,0,0.12)];
   }
 
   .surface-panel {
-    @apply rounded-none border border-slate-200 bg-white shadow-[0_10px_24px_-18px_rgba(15,23,42,0.18)];
+    @apply rounded-none border border-[#d2d2d7] bg-white shadow-[0_4px_10px_-10px_rgba(0,0,0,0.12)];
   }
 
   .loading-orbit-scene {
@@ -146,21 +143,7 @@
 
   .route-transition-shell {
     position: relative;
-    animation: route-content-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .route-transition-shell::before {
-    content: "";
-    position: absolute;
-    inset: -2rem 0 auto 0;
-    height: 8rem;
-    pointer-events: none;
-    border-radius: 999px;
-    background:
-      linear-gradient(90deg, rgb(217 239 255 / 0.48) 0%, rgb(255 232 217 / 0.42) 52%, rgb(217 241 223 / 0.38) 100%);
-    filter: blur(22px);
-    opacity: 0;
-    animation: route-gradient-pass 520ms ease-out both;
+    animation: route-content-enter 180ms ease-out both;
   }
 }
 
@@ -185,31 +168,16 @@
 @keyframes route-content-enter {
   0% {
     opacity: 0;
-    transform: translateY(18px) scale(0.992);
+    transform: translateY(10px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes route-gradient-pass {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px) scaleX(0.92);
-  }
-  35% {
-    opacity: 0.95;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(8px) scaleX(1.02);
+    transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .route-transition-shell,
-  .route-transition-shell::before,
   .loading-orbit-mover,
   .loading-orbit-triangle {
     animation: none !important;

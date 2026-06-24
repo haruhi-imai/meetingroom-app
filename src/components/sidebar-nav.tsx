@@ -94,16 +94,16 @@ export function SidebarNav({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-start gap-4 rounded-[24px] px-4 py-4 transition",
+                "flex items-start gap-4 rounded-sm px-4 py-4 transition",
                 active
-                  ? "bg-[#eef5ff] text-slate-900 shadow-sm"
-                  : "hover:bg-[#f7faff] text-slate-700",
+                  ? "bg-[#f5f5f7] text-slate-900"
+                  : "text-slate-700 hover:bg-[#f5f5f7]",
               )}
             >
               <div
                 className={cn(
-                  "rounded-2xl p-3",
-                  active ? "bg-white" : "bg-white/80",
+                  "rounded-sm border border-[#d2d2d7] bg-white p-3",
+                  active ? "text-slate-900" : "text-slate-700",
                 )}
               >
                 <Icon className="size-5" />
@@ -127,7 +127,7 @@ export function SidebarNav({
               North Star Holdings
             </p>
           </div>
-          <Badge className="bg-[#dff4e5] text-slate-800">運用中</Badge>
+          <Badge className="rounded-none bg-[#f0f0f2] text-slate-700">運用中</Badge>
         </div>
         <p className="mt-3 text-sm leading-6 text-slate-600">
           予約導線を最短化しつつ、企業運用に必要な管理画面も同じUIトーンで揃えています。
@@ -140,7 +140,7 @@ export function SidebarNav({
         {onSignOut ? (
           <Button
             variant="outline"
-            className="mt-4 h-11 w-full rounded-2xl border-slate-200 bg-white text-slate-900 hover:bg-[#f8fbff] sm:hidden"
+            className="mt-4 h-11 w-full rounded-md border-[#d2d2d7] bg-white text-slate-900 hover:bg-[#f5f5f7] sm:hidden"
             onClick={onSignOut}
           >
             <LogOut className="size-4" />
