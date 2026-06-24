@@ -102,11 +102,11 @@
 
 @layer utilities {
   .surface-card {
-    @apply rounded-[28px] border border-white/80 bg-white/90 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.35)] backdrop-blur-sm;
+    @apply rounded-lg border border-white/80 bg-white/90 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.35)] backdrop-blur-sm;
   }
 
   .surface-soft {
-    @apply rounded-[24px] border border-slate-200/80 bg-white/75 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.28)];
+    @apply rounded-lg border border-slate-200/80 bg-white/75 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.28)];
   }
 
   .loading-orbit-scene {

@@ -27,10 +27,10 @@ export function RoomCard({ room, compact = true }: RoomCardProps) {
   const hiddenFeatureCount = room.features.length - visibleFeatures.length;
 
   return (
-    <Card className="surface-soft h-full border-slate-200/80">
+    <Card className="surface-soft h-full min-w-0 border-slate-200/80">
       <CardHeader className="gap-2.5 md:gap-3">
         <div className="flex items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <CardTitle className="text-lg">{room.name}</CardTitle>
             <CardDescription>{room.floor}</CardDescription>
           </div>
@@ -38,20 +38,20 @@ export function RoomCard({ room, compact = true }: RoomCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex h-full flex-col gap-3 md:gap-4">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl bg-[#f6f9fc] p-3 md:p-4">
+        <div className="grid gap-3 lg:grid-cols-2">
+          <div className="min-w-0 rounded-lg bg-[#f6f9fc] p-3 md:p-4">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
               時間料金
             </p>
-            <p className="mt-1.5 text-lg font-semibold text-slate-900 md:mt-2 md:text-xl">
+            <p className="mt-1.5 break-words text-lg font-semibold text-slate-900 md:mt-2 md:text-xl">
               {formatYenPerHour(room.hourlyRate)}
             </p>
           </div>
-          <div className="rounded-2xl bg-[#f6f9fc] p-3 md:p-4">
+          <div className="min-w-0 rounded-lg bg-[#f6f9fc] p-3 md:p-4">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
               次に予約できる時間
             </p>
-            <p className="mt-1.5 text-sm font-semibold text-slate-900 md:mt-2">
+            <p className="mt-1.5 break-words text-sm font-semibold text-slate-900 md:mt-2">
               {room.nextSlot}
             </p>
           </div>
